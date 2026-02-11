@@ -34,8 +34,8 @@ actual fun HistoryView(
 	navigator: Navigator,
 	contentPadding: PaddingValues
 ) {
-	val viewModel: HistoryViewModel = koinViewModel()
 	val context = LocalContext.current
+	val viewModel: HistoryViewModel = koinViewModel()
 
 	val listState = rememberSaveable(
 		saver = LazyListState.Saver
