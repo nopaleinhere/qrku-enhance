@@ -1,0 +1,11 @@
+package com.sedate.qrku.core.common.utils
+
+interface AppVersion {
+    fun getAppVersion(): String
+}
+
+class AppVersionImpl : AppVersion {
+    override fun getAppVersion(): String {
+        return BuildKonfig.APP_VERSION
+    }
+}
