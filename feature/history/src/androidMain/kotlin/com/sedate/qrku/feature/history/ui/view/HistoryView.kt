@@ -43,7 +43,6 @@ actual fun HistoryView(
 		LazyListState()
 	}
 
-
 	with(viewModel) {
 		val historyData by historyData.collectAsState()
 		val selectedIds by selectedIds.collectAsState()
