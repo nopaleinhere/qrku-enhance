@@ -1,7 +1,8 @@
 package com.sedate.qrku.core.model
 
 enum class AppLanguage(val code: String, val countryCode: String) {
-    ENGLISH("en", "US");
+    ENGLISH("en", "US"),
+	INDONESIA("id", "ID");
 
     companion object{
         fun getAppLanguageByCode(languageCode: String): AppLanguage{
