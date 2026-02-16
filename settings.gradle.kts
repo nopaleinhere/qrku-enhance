@@ -15,6 +15,9 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
+plugins {
+	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 
 dependencyResolutionManagement {
 	repositories {
@@ -40,3 +43,4 @@ include(":feature:scan")
 include(":feature:overview")
 include(":core:database")
 include(":feature:history")
+include(":feature:settings")

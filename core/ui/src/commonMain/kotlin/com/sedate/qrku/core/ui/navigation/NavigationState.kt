@@ -1,42 +1,73 @@
 package com.sedate.qrku.core.ui.navigation
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.sedate.qrku.core.common.constants.SeConst.ONE
 
-class NavigationState(
-	private val navBackStack: SnapshotStateList<Routes>
-) : Navigator {
+class NavigationState : Navigator {
+	private val tabBackStacks =
+		mutableMapOf<SeDestination, SnapshotStateList<Routes>>()
+
+	private var _currentTab: SeDestination = SeDestination.WRITE
+	val currentTab: SeDestination
+		get() = _currentTab
+
+	val navBackStack = mutableStateListOf<Routes>()
+
+	init {
+		initializeTabs()
+		switchToTab(_currentTab)
+	}
+
+	private fun initializeTabs() {
+		SeDestination.entries.forEach { destination ->
+			val root = destination.route
+			tabBackStacks[destination] = mutableStateListOf(root)
+		}
+	}
+
 	override fun navigate(route: Routes) {
-		navBackStack.add(route)
+		tabBackStacks[_currentTab]?.add(route)
+		syncCurrentStack()
 	}
 
 	override fun pop() {
-		if (navBackStack.size > Int.ONE) {
-			navBackStack.removeLast()
+		val stack = tabBackStacks[_currentTab] ?: return
+		if (stack.size > 1) {
+			stack.removeLast()
+			syncCurrentStack()
 		}
-	}
-
-	override fun navigateToTopLevelDestination(destination: SeDestination) {
-		val root = when (destination) {
-			SeDestination.WRITE -> WriteRoute.Landing
-			SeDestination.SCAN -> ScanRoute.Scan
-			SeDestination.HISTORY -> HistoryRoute.History
-		}
-
-		if (navBackStack.lastOrNull() == root) return
-
-		resetTo(root)
 	}
 
 	override fun replace(route: Routes) {
-		if (navBackStack.isNotEmpty()) {
-			navBackStack.removeLast()
-		}
-		navBackStack.add(route)
+		val stack = tabBackStacks[_currentTab] ?: return
+		if (stack.isNotEmpty()) stack.removeLast()
+		stack.add(route)
+		syncCurrentStack()
 	}
 
 	override fun resetTo(route: Routes) {
+		val stack = tabBackStacks[_currentTab] ?: return
+		stack.clear()
+		stack.add(route)
+		syncCurrentStack()
+	}
+
+	override fun navigateToTopLevelDestination(destination: SeDestination) {
+		if (destination == _currentTab) return
+
+		_currentTab = destination
+		switchToTab(destination)
+	}
+
+	private fun switchToTab(destination: SeDestination) {
+		val stack = tabBackStacks[destination] ?: return
 		navBackStack.clear()
-		navBackStack.add(route)
+		navBackStack.addAll(stack)
+	}
+
+	private fun syncCurrentStack() {
+		val stack = tabBackStacks[_currentTab] ?: return
+		navBackStack.clear()
+		navBackStack.addAll(stack)
 	}
 }

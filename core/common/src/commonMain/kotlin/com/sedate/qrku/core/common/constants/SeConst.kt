@@ -55,6 +55,7 @@ object SeConst {
 	Long Constants
 	================================= */
 	val Long.Companion.ZERO get() = 0L
+	val Long.Companion.FIVE_THOUSAND get() = 5000L
 
 	/* ==============================
 	Other Constants

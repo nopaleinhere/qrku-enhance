@@ -45,9 +45,9 @@ data object HistoryRoute : Routes {
 }
 
 @Serializable
-data object SettingRoute : Routes {
+data object SettingsRoute : Routes {
 	@Serializable
-	data object Setting : Routes
+	data object Settings : Routes
 
 	@Serializable
 	data object About : Routes
@@ -55,6 +55,7 @@ data object SettingRoute : Routes {
 
 @Stable
 data class NavEntry @OptIn(ExperimentalUuidApi::class) constructor(
-	val id: String = Uuid.random().toString(),
+	val id: String = Uuid.random()
+		.toString(),
 	val route: Routes
 )

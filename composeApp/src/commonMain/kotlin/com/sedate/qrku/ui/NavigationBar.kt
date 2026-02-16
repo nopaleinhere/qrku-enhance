@@ -20,6 +20,7 @@ import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.resources.Res
 import com.sedate.qrku.resources.history
 import com.sedate.qrku.resources.scan
+import com.sedate.qrku.resources.settings
 import com.sedate.qrku.resources.write
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -66,5 +67,6 @@ private fun getStringRes(destination: SeDestination): StringResource {
 		SeDestination.WRITE -> Res.string.write
 		SeDestination.SCAN -> Res.string.scan
 		SeDestination.HISTORY -> Res.string.history
+		SeDestination.SETTINGS -> Res.string.settings
 	}
 }
