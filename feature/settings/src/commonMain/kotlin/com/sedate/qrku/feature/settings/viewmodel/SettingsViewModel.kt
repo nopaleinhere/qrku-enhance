@@ -3,11 +3,11 @@ package com.sedate.qrku.feature.settings.viewmodel
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sedate.qrku.core.common.constants.SeConst.FIVE_THOUSAND
-import com.sedate.qrku.core.common.state.SettingsUiState
-import com.sedate.qrku.core.datastore.preference.App.AppSettingsPreferences
+import com.sedate.qrku.core.common.state.UiState
+import com.sedate.qrku.core.datastore.preference.app.AppSettingsPreferences
 import com.sedate.qrku.core.datastore.preference.settings.SettingsPreference
 import com.sedate.qrku.core.model.SeTheme
+import com.sedate.qrku.core.model.SettingsData
 import com.sedate.qrku.feature.settings.contract.AppInfoProvider
 import com.sedate.qrku.feature.settings.contract.SettingsNavigator
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,17 +23,19 @@ class SettingsViewModel(
 	private val appInfoProvider: AppInfoProvider,
 	private val navigator: SettingsNavigator
 ) : ViewModel() {
-	val uiState: StateFlow<SettingsUiState> =
+	val uiState: StateFlow<UiState<SettingsData>> =
 		settingsPreference.settingsFlow
 			.map { state ->
-				state.copy(
-					appVersion = appInfoProvider.getAppVersion(),
+				UiState.Success(
+					state.copy(
+						appVersion = appInfoProvider.getAppVersion(),
+					)
 				)
 			}
 			.stateIn(
 				scope = viewModelScope,
-				started = SharingStarted.WhileSubscribed(Long.FIVE_THOUSAND),
-				initialValue = SettingsUiState()
+				started = SharingStarted.Eagerly,
+				initialValue = UiState.Loading
 			)
 
 	fun toggleBeep(value: Boolean) {

@@ -1,5 +1,7 @@
 package com.sedate.qrku.feature.scan.ui.view
 
+import android.Manifest
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -27,37 +29,52 @@ import com.sedate.qrku.feature.scan.ui.components.ScannerTopBar
 import com.sedate.qrku.feature.scan.ui.components.rememberGalleryPicker
 import com.sedate.qrku.feature.scan.viewmodel.ScanViewModel
 import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
+@RequiresPermission(Manifest.permission.VIBRATE)
 actual fun ScanView(
 	navigator: Navigator,
-) {
-	val viewModel: ScanViewModel = koinViewModel()
+	viewModel: ScanViewModel
+) = with(viewModel) {
+	val lifecycleOwner = LocalLifecycleOwner.current
+	val controller: ScanController = koinInject()
+	val permission = rememberCameraPermissionState()
+	val settingsData by settingsData.collectAsState()
 
-	with(viewModel) {
-		val lifecycleOwner = LocalLifecycleOwner.current
-		val controller: ScanController = koinInject()
-		val permission = rememberCameraPermissionState()
+	val isFlash by isFlash.collectAsState()
+	var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
 
-		val isFlash by isFlash.collectAsState()
-		var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
+	val openGallery = rememberGalleryPicker(
+		onImagePicked = { uri ->
+			isGalleryOpen = false
 
-		val openGallery = rememberGalleryPicker(
-			onImagePicked = { uri ->
-				isGalleryOpen = false
-
-				controller.scanFromImage(uri) { result ->
-					emitScan(
-						ScanResult(
-							result.value,
-							result.format
-						)
+			controller.scanFromImage(uri) { result ->
+				emitScan(
+					ScanResult(
+						result.value,
+						result.format
 					)
-				}
-			},
-			onCancel = {
-				isGalleryOpen = false
+				)
+			}
+		},
+		onCancel = {
+			isGalleryOpen = false
+			controller.startScan { result ->
+				emitScan(
+					ScanResult(
+						result.value,
+						result.format
+					)
+				)
+			}
+		}
+	)
+
+	when {
+		permission.isGranted() -> {
+			LaunchedEffect(Unit) {
+				viewModel.resetScan()
+
 				controller.startScan { result ->
 					emitScan(
 						ScanResult(
@@ -66,75 +83,61 @@ actual fun ScanView(
 						)
 					)
 				}
-			}
-		)
 
-		when {
-			permission.isGranted() -> {
-				LaunchedEffect(Unit) {
-					viewModel.resetScan()
+				scanEvent.collect { result ->
+					if (settingsData.isBeepEnabled) controller.beep()
+					if (settingsData.isVibrateEnabled) controller.vibrate()
 
-					controller.startScan { result ->
-						emitScan(
-							ScanResult(
-								result.value,
-								result.format
-							)
+					navigator.navigate(
+						OverviewRoute.QrCapture(
+							actionType = BarcodeType.Action.SCAN,
+							type = String.EMPTY,
+							input = result.value,
+							format = result.format
 						)
-					}
-
-					scanEvent.collect { result ->
-						navigator.navigate(
-							OverviewRoute.QrCapture(
-								actionType = BarcodeType.Action.SCAN,
-								type = String.EMPTY,
-								input = result.value,
-								format = result.format
-							)
-						)
-					}
-				}
-
-				DisposableEffect(Unit) {
-					onDispose { controller.stopScan() }
-				}
-
-				Box(Modifier.fillMaxSize()) {
-					CameraPreview(
-						Modifier.fillMaxSize(),
-						onPreviewReady = { previewView ->
-							controller.attachPreview(
-								previewView = previewView,
-								lifecycleOwner = lifecycleOwner
-							)
-						}
-					)
-
-					ScannerDarkOverlay()
-					ScannerCornerOverlay(this)
-
-					ScannerTopBar(
-						isFlash = isFlash,
-						onFlashClick = {
-							val isFlash = setFlash(isFlash.not())
-							controller.toggleFlash(isFlash)
-						},
-						onGalleryClick = {
-							isGalleryOpen = true
-							controller.stopScan()
-							openGallery()
-						}
 					)
 				}
 			}
 
-			else -> {
-				CameraPermissionContent(
-					permanentlyDenied = permission.isPermanentlyDenied(),
-					onRequest = permission.request,
-					onOpenSettings = permission.openSettings
+			DisposableEffect(Unit) {
+				onDispose { controller.stopScan() }
+			}
+
+			Box(Modifier.fillMaxSize()) {
+				CameraPreview(
+					Modifier.fillMaxSize(),
+					onPreviewReady = { previewView ->
+						controller.attachPreview(
+							previewView = previewView,
+							lifecycleOwner = lifecycleOwner
+						)
+					}
+				)
+
+				ScannerDarkOverlay()
+				ScannerCornerOverlay(this)
+
+				ScannerTopBar(
+					isFlash = isFlash,
+					onFlashClick = {
+						val isFlash = setFlash(isFlash.not())
+						controller.toggleFlash(isFlash)
+					},
+					onGalleryClick = {
+						isGalleryOpen = true
+						controller.stopScan()
+						openGallery()
+					}
 				)
 			}
+		}
+
+		else -> {
+			CameraPermissionContent(
+				permanentlyDenied = permission.isPermanentlyDenied(),
+				onRequest = permission.request,
+				onOpenSettings = permission.openSettings
+			)
 		}
 	}
 }

@@ -4,7 +4,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sedate.qrku.core.datastore.preference.App.AppSettingsPreferences
+import com.sedate.qrku.core.datastore.preference.app.AppSettingsPreferences
 import com.sedate.qrku.core.model.AppLanguage
 import com.sedate.qrku.core.model.SeTheme
 import com.sedate.qrku.core.ui.shared.ComposePlugin

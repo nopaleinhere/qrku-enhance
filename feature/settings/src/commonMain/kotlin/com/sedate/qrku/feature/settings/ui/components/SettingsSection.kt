@@ -31,7 +31,7 @@ fun SettingsSection(
 			modifier = Modifier.fillMaxWidth()
 		) {
 			Column(
-				modifier = Modifier.padding(SeDimen.Dp16),
+				modifier = Modifier.padding(vertical = SeDimen.Dp16),
 				verticalArrangement = Arrangement.spacedBy(SeDimen.Dp16),
 				content = content
 			)

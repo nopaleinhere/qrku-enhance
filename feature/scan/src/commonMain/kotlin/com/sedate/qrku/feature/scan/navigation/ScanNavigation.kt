@@ -18,8 +18,6 @@ fun EntryProviderScope<Routes>.scanFlow(
 	} + NavDisplay.popTransitionSpec {
 		EnterTransition.None togetherWith ExitTransition.None
 	}) {
-		ScanView(
-			navigator = navigator,
-		)
+		ScanView(navigator)
 	}
 }

@@ -1,9 +1,17 @@
 package com.sedate.qrku.feature.scan.contract
 
+import android.Manifest
 import android.content.Context
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.net.Uri
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresPermission
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
@@ -19,6 +27,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED
+import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED_FIFTY
 import com.sedate.qrku.core.model.ScanResult
 
 actual class ScanController(
@@ -175,4 +185,41 @@ actual class ScanController(
 				)
 				.build()
 		)
+
+	fun beep() {
+		ToneGenerator(
+			AudioManager.STREAM_MUSIC,
+			Int.ONE_HUNDRED
+		)
+			.startTone(
+				ToneGenerator.TONE_PROP_BEEP,
+				Int.ONE_HUNDRED_FIFTY
+			)
+	}
+
+	@RequiresPermission(Manifest.permission.VIBRATE)
+	fun vibrate() {
+		val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			val manager =
+				context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+			manager.defaultVibrator
+		} else {
+			@Suppress("DEPRECATION")
+			context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+		}
+
+		if (vibrator.hasVibrator().not()) return
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			vibrator.vibrate(
+				VibrationEffect.createOneShot(
+					500,
+					VibrationEffect.DEFAULT_AMPLITUDE
+				)
+			)
+		} else {
+			@Suppress("DEPRECATION")
+			vibrator.vibrate(Long.ONE_HUNDRED_FIFTY)
+		}
+	}
 }

@@ -21,6 +21,7 @@ object SeConst {
 	val Companion.ELEVEN get() = 11
 	val Companion.TWELVE get() = 12
 	val Companion.ONE_HUNDRED get() = 100
+	val Companion.ONE_HUNDRED_FIFTY get() = 150
 	val Companion.TWO_HUNDRED get() = 200
 	val Companion.FIVE_HUNDRED_TWELVE get() = 512
 	val Companion.ONE_THOUSAND get() = 1000
@@ -55,6 +56,8 @@ object SeConst {
 	Long Constants
 	================================= */
 	val Long.Companion.ZERO get() = 0L
+	val Long.Companion.ONE_HUNDRED_FIFTY get() = 150L
+	val Long.Companion.TWO_HUNDRED get() = 200L
 	val Long.Companion.FIVE_THOUSAND get() = 5000L
 
 	/* ==============================

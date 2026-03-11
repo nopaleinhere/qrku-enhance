@@ -11,8 +11,4 @@ val androidScanModule = module {
 			context = androidContext()
 		)
 	}
-
-	factory {
-		ScanViewModel()
-	}
 }

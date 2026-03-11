@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.sedate.qrku.core.model.SettingsData
 import com.sedate.qrku.core.ui.base.BaseUi
 import com.sedate.qrku.core.ui.material.appbar.AppBarState
 import com.sedate.qrku.core.ui.material.appbar.AppBarType
@@ -19,15 +20,13 @@ import com.sedate.qrku.feature.settings.ui.components.SettingsClickableItem
 import com.sedate.qrku.feature.settings.ui.components.SettingsSection
 import com.sedate.qrku.feature.settings.ui.components.SettingsSwitchItem
 import com.sedate.qrku.feature.settings.viewmodel.SettingsViewModel
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsView(
 	contentPadding: PaddingValues,
-	settingsViewModel: SettingsViewModel = koinViewModel()
-) = with(settingsViewModel) {
-	val uiState by uiState.collectAsState()
-
+	settingsData: SettingsData,
+	viewModel: SettingsViewModel
+) = with(viewModel) {
 	BaseUi(
 		backgroundColor = Grey100,
 		appBar = {
@@ -49,25 +48,25 @@ fun SettingsView(
 					SettingsSection(title = "Scan Settings") {
 						SettingsSwitchItem(
 							title = "Beep Sound",
-							checked = uiState.isBeepEnabled,
+							checked = settingsData.isBeepEnabled,
 							onCheckedChange = { toggleBeep(it) }
 						)
 
 						SettingsSwitchItem(
 							title = "Vibrate",
-							checked = uiState.isVibrateEnabled,
+							checked = settingsData.isVibrateEnabled,
 							onCheckedChange = { toggleVibrate(it) }
 						)
 
 						SettingsSwitchItem(
 							title = "Open the link automatically",
-							checked = uiState.isAutoOpenEnabled,
+							checked = settingsData.isAutoOpenEnabled,
 							onCheckedChange = { toggleAutoOpen(it) }
 						)
 
 						SettingsSwitchItem(
 							title = "Confirm opening the link",
-							checked = uiState.isConfirmBeforeOpenEnabled,
+							checked = settingsData.isConfirmBeforeOpenEnabled,
 							onCheckedChange = { toggleConfirmBeforeOpen(it) }
 						)
 					}
@@ -77,7 +76,7 @@ fun SettingsView(
 					SettingsSection(title = "About the Application") {
 						SettingsClickableItem(
 							title = "Application Version",
-							subtitle = uiState.appVersion,
+							subtitle = settingsData.appVersion,
 							onClick = {}
 						)
 

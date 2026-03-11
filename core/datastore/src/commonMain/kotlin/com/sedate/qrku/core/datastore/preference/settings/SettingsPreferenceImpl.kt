@@ -4,7 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import com.sedate.qrku.core.common.state.SettingsUiState
+import com.sedate.qrku.core.model.SettingsData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.map
 internal class SettingsPreferenceImpl(
 	private val dataStore: DataStore<Preferences>
 ) : SettingsPreference {
-	override val settingsFlow: Flow<SettingsUiState> =
+	override val settingsFlow: Flow<SettingsData> =
 		dataStore.data.map { prefs ->
-			SettingsUiState(
+			SettingsData(
 				isBeepEnabled = prefs[KEY_BEEP] ?: true,
 				isVibrateEnabled = prefs[KEY_VIBRATE] ?: true,
 				isAutoOpenEnabled = prefs[KEY_AUTO_OPEN] ?: false,

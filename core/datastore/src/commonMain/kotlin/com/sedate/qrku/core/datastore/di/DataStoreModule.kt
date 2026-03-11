@@ -1,7 +1,7 @@
 package com.sedate.qrku.core.datastore.di
 
-import com.sedate.qrku.core.datastore.preference.App.AppSettingsPreferences
-import com.sedate.qrku.core.datastore.preference.App.AppSettingsPreferencesImpl
+import com.sedate.qrku.core.datastore.preference.app.AppSettingsPreferences
+import com.sedate.qrku.core.datastore.preference.app.AppSettingsPreferencesImpl
 import com.sedate.qrku.core.datastore.preference.settings.SettingsPreference
 import com.sedate.qrku.core.datastore.preference.settings.SettingsPreferenceImpl
 import org.koin.core.module.Module
