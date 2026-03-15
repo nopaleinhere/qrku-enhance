@@ -10,7 +10,6 @@ fun rememberGalleryPicker(
 	onImagePicked: (Uri) -> Unit,
 	onCancel: () -> Unit
 ): () -> Unit {
-
 	val launcher = rememberLauncherForActivityResult(
 		contract = ActivityResultContracts.GetContent()
 	) { uri ->

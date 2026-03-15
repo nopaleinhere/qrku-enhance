@@ -20,6 +20,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.runtime.Stable
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -31,6 +32,7 @@ import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED_FIFTY
 import com.sedate.qrku.core.model.ScanResult
 
+@Stable
 actual class ScanController(
 	private val context: Context
 ) {

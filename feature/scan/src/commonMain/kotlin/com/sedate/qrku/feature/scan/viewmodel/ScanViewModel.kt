@@ -41,6 +41,9 @@ class ScanViewModel(
 	private val _isFlash = MutableStateFlow(false)
 	val isFlash = _isFlash.asStateFlow()
 
+	private val _confirmUrl = MutableStateFlow<String?>(null)
+	val confirmUrl = _confirmUrl.asStateFlow()
+
 	fun setFlash(isFlash: Boolean): Boolean {
 		_isFlash.value = isFlash
 
@@ -58,5 +61,13 @@ class ScanViewModel(
 
 	fun resetScan() {
 		hasScanned = false
+	}
+
+	fun showConfirmDialog(url: String) {
+		_confirmUrl.value = url
+	}
+
+	fun dismissDialog() {
+		_confirmUrl.value = null
 	}
 }

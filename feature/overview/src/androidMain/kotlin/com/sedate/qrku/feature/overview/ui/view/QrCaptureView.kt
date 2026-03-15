@@ -124,4 +124,3 @@ actual fun QrCaptureView(
 		)
 	}
 }
-

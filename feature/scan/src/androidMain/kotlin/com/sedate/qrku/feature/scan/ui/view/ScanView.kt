@@ -1,22 +1,40 @@
 package com.sedate.qrku.feature.scan.ui.view
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.view.ViewTreeObserver
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.EMPTY
+import com.sedate.qrku.core.common.constants.SeConst.THREE_HUNDRED
+import com.sedate.qrku.core.common.utils.isUrl
 import com.sedate.qrku.core.model.ScanResult
+import com.sedate.qrku.core.model.SettingsData
+import com.sedate.qrku.core.ui.material.dialog.SeBottomDialog
 import com.sedate.qrku.core.ui.navigation.Navigator
 import com.sedate.qrku.core.ui.navigation.OverviewRoute
 import com.sedate.qrku.core.ui.utils.rememberCameraPermissionState
@@ -28,6 +46,8 @@ import com.sedate.qrku.feature.scan.ui.components.ScannerDarkOverlay
 import com.sedate.qrku.feature.scan.ui.components.ScannerTopBar
 import com.sedate.qrku.feature.scan.ui.components.rememberGalleryPicker
 import com.sedate.qrku.feature.scan.viewmodel.ScanViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
@@ -36,12 +56,15 @@ actual fun ScanView(
 	navigator: Navigator,
 	viewModel: ScanViewModel
 ) = with(viewModel) {
+	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
-	val controller: ScanController = koinInject()
+	val view = LocalView.current
+	val scope = rememberCoroutineScope()
 	val permission = rememberCameraPermissionState()
+	val controller: ScanController = koinInject()
 	val settingsData by settingsData.collectAsState()
-
 	val isFlash by isFlash.collectAsState()
+	val isBrowserOpen = remember { mutableStateOf(false) }
 	var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
 
 	val openGallery = rememberGalleryPicker(
@@ -85,16 +108,20 @@ actual fun ScanView(
 				}
 
 				scanEvent.collect { result ->
-					if (settingsData.isBeepEnabled) controller.beep()
-					if (settingsData.isVibrateEnabled) controller.vibrate()
-
-					navigator.navigate(
-						OverviewRoute.QrCapture(
-							actionType = BarcodeType.Action.SCAN,
-							type = String.EMPTY,
-							input = result.value,
-							format = result.format
-						)
+					handleScanResult(
+						settings = settingsData,
+						navigator = navigator,
+						viewModel = viewModel,
+						controller = controller,
+						result = result,
+						openLink = { url ->
+							isBrowserOpen.value = true
+							controller.stopScan()
+							openLink(
+								context,
+								url
+							)
+						}
 					)
 				}
 			}
@@ -102,6 +129,38 @@ actual fun ScanView(
 			DisposableEffect(Unit) {
 				onDispose { controller.stopScan() }
 			}
+
+			DisposableEffect(view) {
+				val listener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
+					handleWindowFocus(
+						hasFocus = hasFocus,
+						isBrowserOpen = isBrowserOpen,
+						controller = controller,
+						viewModel = viewModel,
+						emitScan =
+							::emitScan
+					)
+				}
+				view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
+				onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
+			}
+
+
+			ConfirmUrlDialog(
+				viewModel = viewModel,
+				openLink = { url ->
+					controller.stopScan()
+					openLink(
+						context,
+						url
+					)
+
+					scope.launch {
+						delay(Long.THREE_HUNDRED)
+						isBrowserOpen.value = true
+					}
+				}
+			)
 
 			Box(Modifier.fillMaxSize()) {
 				CameraPreview(
@@ -140,4 +199,127 @@ actual fun ScanView(
 			)
 		}
 	}
+}
+
+@Composable
+fun ConfirmUrlDialog(
+	viewModel: ScanViewModel,
+	openLink: (String) -> Unit
+) = with(viewModel) {
+	val confirmUrl by confirmUrl.collectAsState()
+
+	confirmUrl?.let { url ->
+		val normalized = normalizeUrl(url)
+		val domain = extractDomain(normalized)
+
+		SeBottomDialog(
+			icon = Icons.Default.OpenInBrowser,
+			title = "Open link?",
+			message = domain,
+			description = normalized,
+			onConfirm = {
+				openLink(normalized)
+				dismissDialog()
+				resetScan()
+			},
+			onDismiss = {
+				dismissDialog()
+				resetScan()
+			}
+		)
+	}
+}
+
+@RequiresPermission(Manifest.permission.VIBRATE)
+fun handleScanResult(
+	settings: SettingsData,
+	navigator: Navigator,
+	viewModel: ScanViewModel,
+	controller: ScanController,
+	result: ScanResult,
+	openLink: (String) -> Unit
+) {
+	val value = result.value
+
+	if (settings.isBeepEnabled) controller.beep()
+	if (settings.isVibrateEnabled) controller.vibrate()
+
+	if (settings.isAutoOpenEnabled && value.isUrl()) {
+		if (settings.isConfirmBeforeOpenEnabled.not()) {
+			val normalized = normalizeUrl(value)
+			openLink(normalized)
+		} else {
+			viewModel.showConfirmDialog(value)
+		}
+	} else {
+		navigator.navigate(
+			OverviewRoute.QrCapture(
+				actionType = BarcodeType.Action.SCAN,
+				type = String.EMPTY,
+				input = value,
+				format = result.format
+			)
+		)
+	}
+}
+
+fun handleWindowFocus(
+	hasFocus: Boolean,
+	isBrowserOpen: MutableState<Boolean>,
+	controller: ScanController,
+	viewModel: ScanViewModel,
+	emitScan: (ScanResult) -> Unit
+) {
+	if (hasFocus) {
+		onReturnFromBrowser(
+			isBrowserOpen,
+			controller,
+			viewModel,
+			emitScan
+		)
+	}
+}
+
+fun onReturnFromBrowser(
+	isBrowserOpen: MutableState<Boolean>,
+	controller: ScanController,
+	viewModel: ScanViewModel,
+	emitScan: (ScanResult) -> Unit
+) {
+	if (isBrowserOpen.value) {
+		isBrowserOpen.value = false
+		viewModel.resetScan()
+		controller.startScan { result ->
+			emitScan(
+				ScanResult(
+					result.value,
+					result.format
+				)
+			)
+		}
+	}
+}
+
+fun normalizeUrl(url: String): String {
+	return if (url.startsWith("http://")
+			.not() && url.startsWith("https://")
+			.not()
+	) {
+		"https://$url"
+	} else url
+}
+
+fun extractDomain(url: String): String {
+	return url.toUri().host ?: url
+}
+
+fun openLink(
+	context: Context,
+	url: String
+) {
+	val intent = Intent(
+		Intent.ACTION_VIEW,
+		url.toUri()
+	)
+	context.startActivity(intent)
 }
