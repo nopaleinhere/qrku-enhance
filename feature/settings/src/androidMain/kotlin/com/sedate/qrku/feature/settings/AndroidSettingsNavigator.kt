@@ -13,7 +13,7 @@ class AndroidSettingsNavigator(
 		context.startActivity(
 			Intent(
 				Intent.ACTION_VIEW,
-				"https://your-privacy-url.com".toUri()
+				"https://sedate.com/qrku/privacy-policy".toUri()
 			).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		)
 	}
@@ -22,7 +22,7 @@ class AndroidSettingsNavigator(
 		context.startActivity(
 			Intent(
 				Intent.ACTION_SENDTO,
-				"mailto:developer@email.com".toUri()
+				"mailto:sedatelah63@email.com".toUri()
 			).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		)
 	}

@@ -1,17 +1,12 @@
 package com.sedate.qrku.feature.scan.ui.view
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -25,13 +20,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.EMPTY
 import com.sedate.qrku.core.common.constants.SeConst.THREE_HUNDRED
+import com.sedate.qrku.core.common.utils.extractDomain
 import com.sedate.qrku.core.common.utils.isUrl
+import com.sedate.qrku.core.common.utils.normalizeUrl
 import com.sedate.qrku.core.model.ScanResult
 import com.sedate.qrku.core.model.SettingsData
 import com.sedate.qrku.core.ui.material.dialog.SeBottomDialog
@@ -59,6 +56,7 @@ actual fun ScanView(
 	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val view = LocalView.current
+	val uriHandler = LocalUriHandler.current
 	val scope = rememberCoroutineScope()
 	val permission = rememberCameraPermissionState()
 	val controller: ScanController = koinInject()
@@ -117,10 +115,8 @@ actual fun ScanView(
 						openLink = { url ->
 							isBrowserOpen.value = true
 							controller.stopScan()
-							openLink(
-								context,
-								url
-							)
+
+							uriHandler.openUri(url)
 						}
 					)
 				}
@@ -150,11 +146,7 @@ actual fun ScanView(
 				viewModel = viewModel,
 				openLink = { url ->
 					controller.stopScan()
-					openLink(
-						context,
-						url
-					)
-
+					uriHandler.openUri(url)
 					scope.launch {
 						delay(Long.THREE_HUNDRED)
 						isBrowserOpen.value = true
@@ -298,28 +290,4 @@ fun onReturnFromBrowser(
 			)
 		}
 	}
-}
-
-fun normalizeUrl(url: String): String {
-	return if (url.startsWith("http://")
-			.not() && url.startsWith("https://")
-			.not()
-	) {
-		"https://$url"
-	} else url
-}
-
-fun extractDomain(url: String): String {
-	return url.toUri().host ?: url
-}
-
-fun openLink(
-	context: Context,
-	url: String
-) {
-	val intent = Intent(
-		Intent.ACTION_VIEW,
-		url.toUri()
-	)
-	context.startActivity(intent)
 }

@@ -75,12 +75,6 @@ fun SettingsView(
 				item {
 					SettingsSection(title = "About the Application") {
 						SettingsClickableItem(
-							title = "Application Version",
-							subtitle = settingsData.appVersion,
-							onClick = {}
-						)
-
-						SettingsClickableItem(
 							title = "Privacy Policy",
 							onClick = { openPrivacyPolicy() }
 						)
@@ -93,6 +87,12 @@ fun SettingsView(
 						SettingsClickableItem(
 							title = "Rate App",
 							onClick = { rateApp() }
+						)
+
+						SettingsClickableItem(
+							title = "Application Version",
+							subtitle = settingsData.appVersion,
+							onClick = {}
 						)
 					}
 				}
