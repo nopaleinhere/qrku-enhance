@@ -16,6 +16,7 @@ import com.sedate.qrku.core.common.constants.SeConst.TWO_HUNDRED
 import com.sedate.qrku.feature.history.navigation.historyFlow
 import com.sedate.qrku.feature.overview.navigation.overviewFlow
 import com.sedate.qrku.feature.scan.navigation.scanFlow
+import com.sedate.qrku.feature.settings.navigation.settingsFlow
 import com.sedate.qrku.feature.write.navigation.writeFlow
 
 @Composable
@@ -37,6 +38,7 @@ fun RootNavGraph(
 				scanFlow(appState.navigator)
 				overviewFlow(appState.navigator)
 				historyFlow(appState.navigator, innerPadding)
+				settingsFlow(innerPadding)
 			},
 			transitionSpec = {
 				fadeIn(

@@ -70,8 +70,6 @@ val Grey100 = Color(0xFFF5F5F5)
 val Grey600 = Color(0xFF757575)
 val Grey800 = Color(0xFF424242)
 
-
-
 val LightColorScheme = lightColorScheme(
 	primary = LightPrimary,
 	onPrimary = LightOnPrimary,

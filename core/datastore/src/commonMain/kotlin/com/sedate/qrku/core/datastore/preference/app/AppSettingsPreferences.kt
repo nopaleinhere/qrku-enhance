@@ -1,4 +1,4 @@
-package com.sedate.qrku.core.datastore
+package com.sedate.qrku.core.datastore.preference.app
 
 import com.sedate.qrku.core.model.AppLanguage
 import com.sedate.qrku.core.model.SeTheme

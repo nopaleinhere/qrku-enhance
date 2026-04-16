@@ -14,6 +14,7 @@ kotlin {
 			implementation(projects.core.model)
 			implementation(projects.core.ui)
 			implementation(projects.core.database)
+			implementation(projects.core.datastore)
 
 			implementation(libs.koin.core)
 		}

@@ -2,6 +2,7 @@
     <string name="write">Write</string>
     <string name="scan">Scan</string>
     <String name="history">History</String>
+    <String name="settings">Settings</String>
     <String name="desc_barcode">11 digit + 1 digit checksum</String>
     <string name="empty" />
     <String name="copy_label">The text has been copied</String>

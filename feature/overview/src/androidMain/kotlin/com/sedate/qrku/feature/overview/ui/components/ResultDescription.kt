@@ -19,6 +19,8 @@ import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import com.sedate.qrku.core.common.constants.SeConst.TEN
 import com.sedate.qrku.core.common.utils.isValidUrl
 import com.sedate.qrku.core.ui.theme.SeTextStyle
 import com.sedate.qrku.core.ui.utils.SeDimen
+import com.sedate.qrku.feature.overview.viewmodel.QrCaptureViewModel
 import com.sedate.qrku.resources.Res
 import com.sedate.qrku.resources.copy_label
 import kotlinx.coroutines.launch
@@ -40,8 +43,9 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ResultDescription(
-	input: String
-) {
+	input: String,
+	viewModel: QrCaptureViewModel
+) = with(viewModel) {
 	val localClipboard = LocalClipboard.current
 	val scope = rememberCoroutineScope()
 	val scrollState = rememberScrollState()
@@ -50,6 +54,7 @@ internal fun ResultDescription(
 		input
 	)
 	val uriHandler = LocalUriHandler.current
+	val settingsData by settingsData.collectAsState()
 
 	Row(
 		modifier = Modifier.fillMaxWidth(),
@@ -74,7 +79,11 @@ internal fun ResultDescription(
 						textDecoration = TextDecoration.Underline
 					),
 					modifier = Modifier.clickable {
-						uriHandler.openUri(input)
+						if (settingsData.isConfirmBeforeOpenEnabled) {
+							showConfirmDialog(input)
+						} else {
+							uriHandler.openUri(input)
+						}
 					}
 				)
 			} else {

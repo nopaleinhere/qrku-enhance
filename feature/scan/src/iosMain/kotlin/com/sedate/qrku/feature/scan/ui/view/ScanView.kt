@@ -7,5 +7,6 @@ import com.sedate.qrku.feature.scan.viewmodel.ScanViewModel
 @Composable
 actual fun ScanView(
 	navigator: Navigator,
+	viewModel: ScanViewModel
 ) {
 }

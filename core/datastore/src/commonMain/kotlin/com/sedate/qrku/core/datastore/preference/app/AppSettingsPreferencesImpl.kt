@@ -1,4 +1,4 @@
-package com.sedate.qrku.core.datastore
+package com.sedate.qrku.core.datastore.preference.app
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

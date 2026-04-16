@@ -42,6 +42,7 @@ kotlin {
 			implementation(projects.feature.scan)
 			implementation(projects.feature.overview)
 			implementation(projects.feature.history)
+			implementation(projects.feature.settings)
 
 			implementation(libs.koin.core)
 			implementation(libs.koin.compose)

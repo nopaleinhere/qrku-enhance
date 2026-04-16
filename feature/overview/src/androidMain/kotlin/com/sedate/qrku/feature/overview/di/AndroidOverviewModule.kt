@@ -6,7 +6,8 @@ import org.koin.dsl.module
 val androidOverviewModule = module {
 	factory {
 		QrCaptureViewModel(
-			repository = get()
+			repository = get(),
+			settingsPreference = get()
 		)
 	}
 }
