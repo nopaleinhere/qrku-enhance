@@ -16,4 +16,7 @@ expect class ScanController {
 		uri: Any,
 		onResult: (ScanResult) -> Unit
 	)
+
+	fun getZoomRange(onResult: (Float, Float) -> Unit)
+	fun setZoomRatio(ratio: Float)
 }

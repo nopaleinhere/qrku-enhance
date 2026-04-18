@@ -14,14 +14,14 @@ import com.sedate.qrku.core.ui.navigation.WriteRoute
 import com.sedate.qrku.core.ui.theme.Grey100
 import com.sedate.qrku.feature.write.ui.components.CategoryTileComponent
 import com.sedate.qrku.feature.write.ui.components.TextDivider
-import com.sedate.qrku.feature.write.viewmodel.LandingViewModel
+import com.sedate.qrku.feature.write.viewmodel.WriteViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun LandingView(
+fun WriteView(
 	navigator: Navigator,
-	viewModel: LandingViewModel = koinViewModel()
+	viewModel: WriteViewModel = koinViewModel()
 ) = with(viewModel) {
 	BaseUi(
 		backgroundColor = Grey100,
@@ -37,26 +37,26 @@ fun LandingView(
 			LazyColumn(
 				Modifier.fillMaxSize()
 			) {
-				groupedData.forEach { (type, items) ->
+				groupedData.forEach { (type, data) ->
 					stickyHeader {
 						TextDivider(type)
 					}
 
 					items(
-						items,
+						items = data,
 						key = { it.format }
-					) { data ->
-						data.iconKey.toDrawable()
+					) { v ->
+						v.iconKey.toDrawable()
 							?.let { icon ->
 								CategoryTileComponent(
-									text = data.format.text,
-									desc = stringResource(data.desc),
+									text = v.format.text,
+									desc = stringResource(v.desc),
 									icon = icon,
 									onClick = {
 										navigator.navigate(
 											WriteRoute.Generate(
 												type = type,
-												subType = data.format
+												subType = v.format
 											)
 										)
 									}

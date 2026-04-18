@@ -32,10 +32,10 @@ fun RootNavGraph(
 			entryDecorators = listOf(
 				rememberSaveableStateHolderNavEntryDecorator(),
 				rememberViewModelStoreNavEntryDecorator()
-			),
+			), 
 			entryProvider = entryProvider {
+				scanFlow(appState.navigator, innerPadding)
 				writeFlow(appState.navigator)
-				scanFlow(appState.navigator)
 				overviewFlow(appState.navigator)
 				historyFlow(appState.navigator, innerPadding)
 				settingsFlow(innerPadding)

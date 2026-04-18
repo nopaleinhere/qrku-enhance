@@ -39,6 +39,7 @@ object SeConst {
 	Float Constants
 	================================= */
 	val Float.Companion.ZERO get() = 0f
+	val Float.Companion.ZERO_POINT_ONE get() = 0.1f
 	val Float.Companion.ZERO_POINT_TWO get() = 0.2f
 	val Float.Companion.ZERO_POINT_THREE get() = 0.3f
 	val Float.Companion.ZERO_POINT_FOUR get() = 0.4f
@@ -68,6 +69,7 @@ object SeConst {
 	val Long.Companion.ONE_HUNDRED_FIFTY get() = 150L
 	val Long.Companion.TWO_HUNDRED get() = 200L
 	val Long.Companion.THREE_HUNDRED get() = 300L
+	val Long.Companion.FIVE_HUNDRED get() = 500L
 	val Long.Companion.EIGHT_HUNDRED get() = 800L
 	val Long.Companion.FIVE_THOUSAND get() = 5000L
 

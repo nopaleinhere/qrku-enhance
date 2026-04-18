@@ -14,7 +14,7 @@ import com.sedate.qrku.resources.ic_text
 import org.jetbrains.compose.resources.DrawableResource
 
 @Stable
-class LandingViewModel : ViewModel() {
+class WriteViewModel : ViewModel() {
 	private val categoryList = listOf(
 		GenerateType(
 			"QR Code",

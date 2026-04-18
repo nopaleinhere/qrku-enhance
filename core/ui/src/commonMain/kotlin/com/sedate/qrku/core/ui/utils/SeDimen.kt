@@ -58,6 +58,8 @@ object SeDimen {
 	val Dp52 = 52.dp
 	val Dp56 = 56.dp
 	val Dp70 = 70.dp
+	val Dp95 = 95.dp
+	val Dp140 = 140.dp
 	val Dp180 = 180.dp
 	val Dp240 = 240.dp
 	val Dp320 = 320.dp

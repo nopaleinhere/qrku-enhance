@@ -27,29 +27,27 @@ fun SeButton(
 		enabled = enabled && loading.not(),
 		modifier = modifier
 			.fillMaxWidth()
-			.height(SeDimen.Dp52),
-		shape = RoundedCornerShape(SeDimen.Dp14),
+			.height(SeDimen.Dp34),
+		shape = RoundedCornerShape(SeDimen.Dp6),
 		elevation = ButtonDefaults.elevatedButtonElevation(
 			defaultElevation = SeDimen.Dp2,
 			pressedElevation = SeDimen.Dp0
 		),
 		colors = ButtonDefaults.elevatedButtonColors(
-			containerColor = colorScheme.primary,
-			contentColor = colorScheme.onPrimary,
-			disabledContainerColor = colorScheme.outlineVariant,
-			disabledContentColor = colorScheme.onSurfaceVariant
+			containerColor = colorScheme.secondary,
+			contentColor = colorScheme.onSecondary,
 		)
 	) {
 		if (loading) {
 			CircularProgressIndicator(
 				strokeWidth = SeDimen.Dp2,
-				modifier = Modifier.size(SeDimen.Dp18),
+				modifier = Modifier.size(SeDimen.Dp16),
 				color = colorScheme.onPrimary
 			)
 		} else {
 			Text(
 				text = text,
-				style = SeTextStyle.ButtonLarge
+				style = SeTextStyle.ButtonSmall
 			)
 		}
 	}

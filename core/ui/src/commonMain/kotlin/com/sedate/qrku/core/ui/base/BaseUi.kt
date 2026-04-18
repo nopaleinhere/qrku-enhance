@@ -26,46 +26,43 @@ fun BaseUi(
 	backgroundColor: Color? = null,
 	appBar: (@Composable () -> Unit)? = null,
 	content: (@Composable () -> Unit)? = null,
-	bottomBar: (@Composable () -> Unit)? = null,
-	sharedScope: SharedScope = LocalShared.current,
-) = with(sharedScope) {
-	Box(
-		modifier = Modifier.fillMaxSize() then (if (backgroundColor != null) {
-			Modifier.background(backgroundColor)
-		} else {
-			Modifier
-		})
+	bottomBar: (@Composable () -> Unit)? = null
+) = Box(
+	modifier = Modifier.fillMaxSize() then (if (backgroundColor != null) {
+		Modifier.background(backgroundColor)
+	} else {
+		Modifier
+	})
+) {
+	Column(
+		modifier = Modifier.fillMaxSize()
 	) {
-		Column(
-			modifier = Modifier.fillMaxSize()
-		) {
-			appBar?.invoke()
-			content?.let {
-				Box(
-					modifier = Modifier.weight(Float.ONE)
-						.fillMaxWidth()
-						.padding(horizontal = SeDimen.Dp16)
-				) {
-					content()
-				}
+		appBar?.invoke()
+		content?.let {
+			Box(
+				modifier = Modifier.weight(Float.ONE)
+					.fillMaxWidth()
+					.padding(horizontal = SeDimen.Dp16)
+			) {
+				content()
 			}
 		}
+	}
 
-		bottomBar?.let {
-			Box(
-				modifier = Modifier.align(Alignment.BottomCenter)
-					.background(colorScheme.surface)
-					.fillMaxWidth()
-					.windowInsetsPadding(
-						WindowInsets.navigationBars.union(WindowInsets.ime)
-					)
-					.padding(
-						horizontal = SeDimen.Dp16,
-						vertical = SeDimen.Dp16
-					),
-			) {
-				bottomBar()
-			}
+	bottomBar?.let {
+		Box(
+			modifier = Modifier.align(Alignment.BottomCenter)
+				.background(colorScheme.background)
+				.fillMaxWidth()
+				.windowInsetsPadding(
+					WindowInsets.navigationBars.union(WindowInsets.ime)
+				)
+				.padding(
+					horizontal = SeDimen.Dp16,
+					vertical = SeDimen.Dp16
+				),
+		) {
+			bottomBar()
 		}
 	}
 }

@@ -75,7 +75,7 @@ object SeTextStyle {
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.Normal,
 		fontSize = 12.sp,
-		lineHeight = 18.sp
+		lineHeight = 15.sp
 	)
 
 	/* ============================================================

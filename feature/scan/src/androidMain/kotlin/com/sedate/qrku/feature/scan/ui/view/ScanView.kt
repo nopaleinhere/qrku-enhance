@@ -4,22 +4,22 @@ import android.Manifest
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -31,9 +31,14 @@ import com.sedate.qrku.core.common.utils.isUrl
 import com.sedate.qrku.core.common.utils.normalizeUrl
 import com.sedate.qrku.core.model.ScanResult
 import com.sedate.qrku.core.model.SettingsData
+import com.sedate.qrku.core.ui.base.BaseUi
+import com.sedate.qrku.core.ui.material.appbar.AppBarState
+import com.sedate.qrku.core.ui.material.appbar.AppBarType
+import com.sedate.qrku.core.ui.material.appbar.SeAppBar
 import com.sedate.qrku.core.ui.material.dialog.SeBottomDialog
 import com.sedate.qrku.core.ui.navigation.Navigator
 import com.sedate.qrku.core.ui.navigation.OverviewRoute
+import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.core.ui.utils.rememberCameraPermissionState
 import com.sedate.qrku.feature.scan.contract.ScanController
 import com.sedate.qrku.feature.scan.ui.components.CameraPermissionContent
@@ -41,6 +46,7 @@ import com.sedate.qrku.feature.scan.ui.components.CameraPreview
 import com.sedate.qrku.feature.scan.ui.components.ScannerCornerOverlay
 import com.sedate.qrku.feature.scan.ui.components.ScannerDarkOverlay
 import com.sedate.qrku.feature.scan.ui.components.ScannerTopBar
+import com.sedate.qrku.feature.scan.ui.components.ZoomSlider
 import com.sedate.qrku.feature.scan.ui.components.rememberGalleryPicker
 import com.sedate.qrku.feature.scan.viewmodel.ScanViewModel
 import kotlinx.coroutines.delay
@@ -51,9 +57,9 @@ import org.koin.compose.koinInject
 @RequiresPermission(Manifest.permission.VIBRATE)
 actual fun ScanView(
 	navigator: Navigator,
+	innerPadding: PaddingValues,
 	viewModel: ScanViewModel
 ) = with(viewModel) {
-	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val view = LocalView.current
 	val uriHandler = LocalUriHandler.current
@@ -61,9 +67,13 @@ actual fun ScanView(
 	val permission = rememberCameraPermissionState()
 	val controller: ScanController = koinInject()
 	val settingsData by settingsData.collectAsState()
-	val isFlash by isFlash.collectAsState()
-	val isBrowserOpen = remember { mutableStateOf(false) }
+	val zoomState by controller.zoomState.collectAsState()
+	val zoomRatio by zoomRatio.collectAsState()
+	val minZoom by minZoom.collectAsState()
+	val maxZoom by maxZoom.collectAsState()
 	var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
+	val isBrowserOpen by isBrowserOpen.collectAsState()
+	val isFlash by isFlash.collectAsState()
 
 	val openGallery = rememberGalleryPicker(
 		onImagePicked = { uri ->
@@ -113,11 +123,21 @@ actual fun ScanView(
 						controller = controller,
 						result = result,
 						openLink = { url ->
-							isBrowserOpen.value = true
+							setBrowserOpen(true)
 							controller.stopScan()
 
 							uriHandler.openUri(url)
 						}
+					)
+				}
+			}
+
+			LaunchedEffect(zoomState) {
+				zoomState?.let {
+					setZoomRatio(
+						it.zoomRatio,
+						it.minZoomRatio,
+						it.maxZoomRatio
 					)
 				}
 			}
@@ -141,7 +161,6 @@ actual fun ScanView(
 				onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
 			}
 
-
 			ConfirmUrlDialog(
 				viewModel = viewModel,
 				openLink = { url ->
@@ -149,7 +168,7 @@ actual fun ScanView(
 					uriHandler.openUri(url)
 					scope.launch {
 						delay(Long.THREE_HUNDRED)
-						isBrowserOpen.value = true
+						setBrowserOpen(true)
 					}
 				}
 			)
@@ -162,6 +181,14 @@ actual fun ScanView(
 							previewView = previewView,
 							lifecycleOwner = lifecycleOwner
 						)
+
+						controller.getZoomRange { min, max ->
+							setZoomRatio(
+								min,
+								min,
+								max
+							)
+						}
 					}
 				)
 
@@ -180,14 +207,38 @@ actual fun ScanView(
 						openGallery()
 					}
 				)
+
+				ZoomSlider(
+					value = zoomRatio,
+					onValueChange = { value ->
+						setZoomRatio(value)
+						controller.setZoomRatio(value)
+					},
+					valueRange = minZoom..maxZoom,
+					modifier = Modifier
+						.align(Alignment.BottomCenter)
+						.padding(bottom = innerPadding.calculateBottomPadding() + SeDimen.Dp40)
+				)
 			}
 		}
 
 		else -> {
-			CameraPermissionContent(
-				permanentlyDenied = permission.isPermanentlyDenied(),
-				onRequest = permission.request,
-				onOpenSettings = permission.openSettings
+			BaseUi(
+				appBar = {
+					SeAppBar(
+						state = AppBarState(
+							title = "Scan QRKU",
+							type = AppBarType.TOP_LEVEL
+						)
+					)
+				},
+				content = {
+					CameraPermissionContent(
+						permanentlyDenied = permission.isPermanentlyDenied(),
+						onRequest = permission.request,
+						onOpenSettings = permission.openSettings
+					)
+				}
 			)
 		}
 	}
@@ -257,7 +308,7 @@ fun handleScanResult(
 
 fun handleWindowFocus(
 	hasFocus: Boolean,
-	isBrowserOpen: MutableState<Boolean>,
+	isBrowserOpen: Boolean,
 	controller: ScanController,
 	viewModel: ScanViewModel,
 	emitScan: (ScanResult) -> Unit
@@ -273,14 +324,14 @@ fun handleWindowFocus(
 }
 
 fun onReturnFromBrowser(
-	isBrowserOpen: MutableState<Boolean>,
+	isBrowserOpen: Boolean,
 	controller: ScanController,
 	viewModel: ScanViewModel,
 	emitScan: (ScanResult) -> Unit
-) {
-	if (isBrowserOpen.value) {
-		isBrowserOpen.value = false
-		viewModel.resetScan()
+) = with(viewModel) {
+	if (isBrowserOpen) {
+		setBrowserOpen(false)
+		resetScan()
 		controller.startScan { result ->
 			emitScan(
 				ScanResult(

@@ -1,6 +1,11 @@
 package com.sedate.qrku.feature.scan.viewmodel
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sedate.qrku.core.common.constants.SeConst.FIVE_THOUSAND
@@ -22,6 +27,8 @@ import kotlinx.coroutines.flow.stateIn
 class ScanViewModel(
 	settingsPreference: SettingsPreference
 ) : ViewModel() {
+	private var hasScanned = false
+
 	private val _scanEvent = MutableSharedFlow<ScanResult>(
 		replay = Int.ZERO,
 		extraBufferCapacity = Int.ONE
@@ -36,19 +43,23 @@ class ScanViewModel(
 				initialValue = SettingsData()
 			)
 
-	private var hasScanned = false
+	private var _zoomRatio = MutableStateFlow(Float.ONE)
+	val zoomRatio = _zoomRatio.asStateFlow()
+
+	private var _minZoom = MutableStateFlow(Float.ONE)
+	val minZoom = _minZoom.asStateFlow()
+
+	private var _maxZoom = MutableStateFlow(Float.ONE)
+	val maxZoom = _maxZoom.asStateFlow()
 
 	private val _isFlash = MutableStateFlow(false)
 	val isFlash = _isFlash.asStateFlow()
 
+	private val _isBrowserOpen = MutableStateFlow(false)
+	val isBrowserOpen = _isBrowserOpen.asStateFlow()
+
 	private val _confirmUrl = MutableStateFlow<String?>(null)
 	val confirmUrl = _confirmUrl.asStateFlow()
-
-	fun setFlash(isFlash: Boolean): Boolean {
-		_isFlash.value = isFlash
-
-		return isFlash
-	}
 
 	fun emitScan(
 		result: ScanResult
@@ -61,6 +72,29 @@ class ScanViewModel(
 
 	fun resetScan() {
 		hasScanned = false
+	}
+
+	fun setZoomRatio(
+		zoomRatio: Float,
+		minZoomRatio: Float? = null,
+		maxZoomRatio: Float? = null
+	) {
+		_zoomRatio.value = zoomRatio
+
+		if (minZoomRatio != null && maxZoomRatio != null) {
+			_minZoom.value = minZoomRatio
+			_maxZoom.value = maxZoomRatio
+		}
+	}
+
+	fun setFlash(isFlash: Boolean): Boolean {
+		_isFlash.value = isFlash
+
+		return isFlash
+	}
+
+	fun setBrowserOpen(isOpen: Boolean) {
+		_isBrowserOpen.value = isOpen
 	}
 
 	fun showConfirmDialog(url: String) {

@@ -16,8 +16,8 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
 		commonModule,
 		sharedModule,
 		dataStoreModule,
-		writeModule,
 		scanModule,
+		writeModule,
 		settingsModule
 	)
 }
