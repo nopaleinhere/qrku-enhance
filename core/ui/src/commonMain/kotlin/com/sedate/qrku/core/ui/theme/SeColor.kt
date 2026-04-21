@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 // Other
+val lightGray = Color(0xFFEBEBEB)
 val Grey100 = Color(0xFFF5F5F5)
 val Grey600 = Color(0xFF757575)
 val Grey800 = Color(0xFF424242)

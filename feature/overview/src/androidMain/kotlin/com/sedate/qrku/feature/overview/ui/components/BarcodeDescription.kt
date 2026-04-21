@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,7 +39,7 @@ internal fun BarcodeDescription(
 		)
 		Text(
 			"$currentDate | $typeFormat",
-			style = SeTextStyle.BodyLarge,
+			style = typography.bodyLarge,
 			color = colorScheme.onSurfaceVariant
 		)
 	}

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -52,12 +53,12 @@ fun CameraPermissionContent(
 				Column(verticalArrangement = Arrangement.SpaceBetween) {
 					Text(
 						"Enable Permission to Continue",
-						style = SeTextStyle.LabelLarge
+						style = typography.labelLarge
 					)
 					Spacer(Modifier.height(SeDimen.Dp12))
 					Text(
 						"This feature won’t work without the required permission. You can enable it in your app settings.",
-						style = SeTextStyle.BodySmall
+						style = typography.bodySmall
 					)
 				}
 			}

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -61,7 +62,7 @@ actual fun HistoryView(
 		}
 
 		BaseUi(
-			backgroundColor = Grey100,
+			backgroundColor = colorScheme.background,
 			appBar = {
 				SelectionTopBar(
 					selectedCount = selectedIds.size,

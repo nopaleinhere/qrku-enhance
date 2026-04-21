@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -66,7 +67,7 @@ internal fun ResultDescription(
 				.weight(Float.ONE)
 				.heightIn(
 					max = with(LocalDensity.current) {
-						(SeTextStyle.BodyLarge.lineHeight * Int.TEN).toDp()
+						(typography.bodyLarge.lineHeight * Int.TEN).toDp()
 					}
 				)
 				.verticalScroll(scrollState)
@@ -74,7 +75,7 @@ internal fun ResultDescription(
 			if (input.isValidUrl()) {
 				Text(
 					text = input,
-					style = SeTextStyle.BodyLarge.copy(
+					style = typography.bodyLarge.copy(
 						color = colorScheme.primary,
 						textDecoration = TextDecoration.Underline
 					),
@@ -89,7 +90,7 @@ internal fun ResultDescription(
 			} else {
 				Text(
 					text = input,
-					style = SeTextStyle.BodyLarge,
+					style = typography.bodyLarge,
 				)
 			}
 		}

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ internal fun LazyListScope.historyList(
 		item(key = date) {
 			Text(
 				text = date,
-				style = MaterialTheme.typography.titleMedium,
+				style = typography.bodyMedium,
 				modifier = Modifier.padding(vertical = SeDimen.Dp8)
 			)
 		}

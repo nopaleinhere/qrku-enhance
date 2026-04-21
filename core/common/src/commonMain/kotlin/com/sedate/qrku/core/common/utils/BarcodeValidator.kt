@@ -12,7 +12,6 @@ import com.sedate.qrku.core.common.constants.SeConst.TWO
 import com.sedate.qrku.core.common.constants.SeConst.ZERO
 
 object BarcodeValidator {
-
 	fun isValid(
 		input: String,
 		format: BarcodeType.Support

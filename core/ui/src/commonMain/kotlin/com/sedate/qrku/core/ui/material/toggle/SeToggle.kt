@@ -19,12 +19,14 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import com.sedate.qrku.core.common.constants.SeConst.FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.FOUR_HUNDRED
+import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED_FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.TWO_HUNDRED_FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.ZERO_POINT_SEVEN
@@ -43,50 +45,45 @@ fun SeToggle(
 	)
 
 	val thumbOffset by transition.animateDp(
-		label = "thumbOffset",
+		label = "thumb_offset",
 		transitionSpec = {
 			spring(
 				dampingRatio = Float.ZERO_POINT_SEVEN,
 				stiffness = Float.FOUR_HUNDRED
 			)
 		}
-	) { if (it) SeDimen.Dp22 else SeDimen.Dp3 }
+	) { if (it) SeDimen.Dp23 else SeDimen.Dp3 }
 
 	val trackColor by transition.animateColor(
-		label = "trackColor",
+		label = "track_color",
 		transitionSpec = { tween(Int.TWO_HUNDRED_FIFTY) }
-	) { if (it) colorScheme.secondaryContainer else Grey100 }
+	) { if (it) colorScheme.secondary else colorScheme.surfaceVariant }
 
 	val thumbWidth by transition.animateDp(
-		label = "thumbWidth",
+		label = "thumb_width",
 		transitionSpec = { tween(Int.ONE_HUNDRED_FIFTY) }
-	) { SeDimen.Dp22 }
+	) { SeDimen.Dp24 }
 
 	Box(
 		modifier = modifier
 			.width(SeDimen.Dp50)
-			.height(SeDimen.Dp28)
+			.height(SeDimen.Dp26)
 			.clip(RoundedCornerShape(SeDimen.Dp14))
 			.background(trackColor)
 			.clickable(
 				indication = null,
 				interactionSource = remember { MutableInteractionSource() }
-			) { onCheckedChange(checked.not()) }
+			) { onCheckedChange(checked.not()) },
+		contentAlignment = Alignment.CenterStart
 	) {
 		Box(
 			modifier = Modifier
-				.padding(
-					start = thumbOffset,
-					top = SeDimen.Dp3
-				)
-				.size(
-					width = thumbWidth,
-					height = SeDimen.Dp22
-				)
-				.clip(RoundedCornerShape(Int.FIFTY))
-				.background(Color.White)
+				.padding(start = thumbOffset)
+				.size(width = thumbWidth, height = SeDimen.Dp22)
+				.clip(RoundedCornerShape(Int.ONE_HUNDRED))
+				.background(colorScheme.onSecondary)
 				.shadow(
-					elevation = SeDimen.Dp2,
+					elevation = SeDimen.Dp4,
 					shape = CircleShape
 				)
 		)

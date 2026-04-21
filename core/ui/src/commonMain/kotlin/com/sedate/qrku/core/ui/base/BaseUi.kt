@@ -25,8 +25,10 @@ import com.sedate.qrku.core.ui.utils.SeDimen
 fun BaseUi(
 	backgroundColor: Color? = null,
 	appBar: (@Composable () -> Unit)? = null,
+	tabBar: (@Composable () -> Unit)? = null,
 	content: (@Composable () -> Unit)? = null,
-	bottomBar: (@Composable () -> Unit)? = null
+	bottomBar: (@Composable () -> Unit)? = null,
+	autoVerticalPadding: Boolean= true
 ) = Box(
 	modifier = Modifier.fillMaxSize() then (if (backgroundColor != null) {
 		Modifier.background(backgroundColor)
@@ -38,11 +40,18 @@ fun BaseUi(
 		modifier = Modifier.fillMaxSize()
 	) {
 		appBar?.invoke()
+		tabBar?.invoke()
 		content?.let {
 			Box(
 				modifier = Modifier.weight(Float.ONE)
 					.fillMaxWidth()
-					.padding(horizontal = SeDimen.Dp16)
+					.then(
+						if (autoVerticalPadding) {
+							Modifier.padding(horizontal = SeDimen.Dp16)
+						} else {
+							Modifier
+						}
+					)
 			) {
 				content()
 			}
