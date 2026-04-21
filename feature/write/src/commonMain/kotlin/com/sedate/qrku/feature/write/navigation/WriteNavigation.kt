@@ -26,7 +26,7 @@ fun EntryProviderScope<Routes>.writeFlow(
 		GenerateView(
 			navigator = navigator,
 			type = it.type,
-			subType = it.subType
+			support = it.support
 		)
 	}
 }

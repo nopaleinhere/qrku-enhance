@@ -23,14 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import com.sedate.qrku.core.common.constants.SeConst.FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.FOUR_HUNDRED
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED_FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.TWO_HUNDRED_FIFTY
 import com.sedate.qrku.core.common.constants.SeConst.ZERO_POINT_SEVEN
-import com.sedate.qrku.core.ui.theme.Grey100
 import com.sedate.qrku.core.ui.utils.SeDimen
 
 @Composable
@@ -59,6 +56,11 @@ fun SeToggle(
 		transitionSpec = { tween(Int.TWO_HUNDRED_FIFTY) }
 	) { if (it) colorScheme.secondary else colorScheme.surfaceVariant }
 
+	val thumbColor by transition.animateColor(
+		label = "thumb_color",
+		transitionSpec = { tween(Int.TWO_HUNDRED_FIFTY) }
+	) { if (it) colorScheme.surface else colorScheme.onSurfaceVariant }
+
 	val thumbWidth by transition.animateDp(
 		label = "thumb_width",
 		transitionSpec = { tween(Int.ONE_HUNDRED_FIFTY) }
@@ -79,9 +81,12 @@ fun SeToggle(
 		Box(
 			modifier = Modifier
 				.padding(start = thumbOffset)
-				.size(width = thumbWidth, height = SeDimen.Dp22)
+				.size(
+					width = thumbWidth,
+					height = SeDimen.Dp22
+				)
 				.clip(RoundedCornerShape(Int.ONE_HUNDRED))
-				.background(colorScheme.onSecondary)
+				.background(thumbColor)
 				.shadow(
 					elevation = SeDimen.Dp4,
 					shape = CircleShape

@@ -4,7 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.ZERO
@@ -14,7 +14,7 @@ import com.sedate.qrku.core.ui.material.appbar.AppBarType
 import com.sedate.qrku.core.ui.material.appbar.SeAppBar
 import com.sedate.qrku.core.ui.navigation.Navigator
 import com.sedate.qrku.core.ui.theme.Grey100
-import com.sedate.qrku.feature.write.ui.components.QrMenuGrid
+import com.sedate.qrku.feature.write.ui.components.MenuGrid
 import com.sedate.qrku.feature.write.ui.components.TabBar
 import com.sedate.qrku.feature.write.viewmodel.WriteViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -24,7 +24,7 @@ fun WriteView(
 	navigator: Navigator,
 	viewModel: WriteViewModel = koinViewModel()
 ) = with(viewModel) {
-	var selectedTab by remember { mutableStateOf(Int.ZERO) }
+	var selectedTab by rememberSaveable { mutableStateOf(Int.ZERO) }
 
 	val currentCategory = if (selectedTab == Int.ZERO) BarcodeType.Category.QR
 	else BarcodeType.Category.BARCODE
@@ -48,7 +48,7 @@ fun WriteView(
 		},
 		content = {
 			AnimatedContent(targetState = data) { list ->
-				QrMenuGrid(
+				MenuGrid(
 					navigator = navigator,
 					items = list,
 					viewModel = viewModel

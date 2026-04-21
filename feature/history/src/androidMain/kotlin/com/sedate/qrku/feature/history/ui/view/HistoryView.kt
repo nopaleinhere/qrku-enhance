@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -58,6 +59,7 @@ actual fun HistoryView(
 		val historyData by historyData.collectAsState()
 		val selectedIds by selectedIds.collectAsState()
 		val isSelectionMode by isSelectionMode.collectAsState()
+		val isLoading by isLoading.collectAsState()
 
 		LaunchedEffect(Unit) {
 			getHistory()
@@ -89,43 +91,53 @@ actual fun HistoryView(
 				)
 			},
 			content = {
-				if (historyData.isEmpty()) {
-					EmptyState(contentPadding)
-				} else {
-					LazyColumn(
-						state = listState,
-						modifier = Modifier.fillMaxSize()
-							.padding(bottom = contentPadding.calculateBottomPadding()),
-						contentPadding = PaddingValues(vertical = SeDimen.Dp16),
-						verticalArrangement = Arrangement.spacedBy(SeDimen.Dp12)
-					) {
-						historyList(
-							historyData,
-							selectedIds,
-						) { selected, history ->
-							HistoryItem(
-								history,
-								selected = selected,
-								selectionMode = isSelectionMode,
-								onClick = {
-									if (isSelectionMode) {
-										toggleSelect(history.id)
-									} else {
-										navigator.navigate(
-											OverviewRoute.QrCapture(
-												actionType = BarcodeType.Action.HISTORY,
-												type = history.contentType,
-												input = history.result,
-												format = history.formatCode,
-												date = history.createdAt
+				when {
+					isLoading -> {
+						Box(
+							modifier = Modifier.fillMaxSize()
+						)
+					}
+
+					historyData.isEmpty() -> {
+						EmptyState(contentPadding)
+					}
+
+					else -> {
+						LazyColumn(
+							state = listState,
+							modifier = Modifier.fillMaxSize()
+								.padding(bottom = contentPadding.calculateBottomPadding()),
+							contentPadding = PaddingValues(vertical = SeDimen.Dp16),
+							verticalArrangement = Arrangement.spacedBy(SeDimen.Dp12)
+						) {
+							historyList(
+								historyData,
+								selectedIds,
+							) { selected, history ->
+								HistoryItem(
+									history,
+									selected = selected,
+									selectionMode = isSelectionMode,
+									onClick = {
+										if (isSelectionMode) {
+											toggleSelect(history.id)
+										} else {
+											navigator.navigate(
+												OverviewRoute.QrCapture(
+													actionType = BarcodeType.Action.HISTORY,
+													type = history.contentType,
+													input = history.result,
+													format = history.formatCode,
+													date = history.createdAt
+												)
 											)
-										)
+										}
+									},
+									onLongClick = {
+										toggleSelect(history.id)
 									}
-								},
-								onLongClick = {
-									toggleSelect(history.id)
-								}
-							)
+								)
+							}
 						}
 					}
 				}

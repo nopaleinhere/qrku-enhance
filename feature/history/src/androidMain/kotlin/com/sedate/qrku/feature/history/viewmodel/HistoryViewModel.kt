@@ -29,6 +29,9 @@ actual class HistoryViewModel(
 	private val _uiEvent = MutableSharedFlow<HistoryUiEvent>()
 	val uiEvent = _uiEvent.asSharedFlow()
 
+	private val _isLoading = MutableStateFlow(true)
+	val isLoading = _isLoading.asStateFlow()
+
 	private val _historyData = MutableStateFlow<Map<String, List<BarcodeHistory>>>(emptyMap())
 	val historyData = _historyData.asStateFlow()
 
@@ -44,10 +47,12 @@ actual class HistoryViewModel(
 			)
 
 	suspend fun getHistory() {
+		_isLoading.value = true
 		_historyData.value = repository.getHistory()
 			.groupBy { history ->
 				formatDateHeader(history.createdAt)
 			}
+		_isLoading.value = false
 	}
 
 	fun toggleSelect(id: Long) {

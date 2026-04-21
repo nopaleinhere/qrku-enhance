@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -24,9 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import com.sedate.qrku.core.common.constants.SeConst.THREE
 import com.sedate.qrku.core.ui.navigation.Navigator
+import com.sedate.qrku.core.ui.navigation.WriteRoute
 import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.feature.write.data.GenerateType
 import com.sedate.qrku.feature.write.viewmodel.WriteViewModel
@@ -35,7 +34,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun QrMenuGrid(
+fun MenuGrid(
 	navigator: Navigator,
 	items: List<GenerateType>,
 	viewModel: WriteViewModel = koinViewModel()
@@ -48,16 +47,22 @@ fun QrMenuGrid(
 		contentPadding = PaddingValues(top = SeDimen.Dp16)
 	) {
 		items(items) { item ->
-			QrMenuItem(
+			MenuItem(
 				item = item,
-				icon = viewModel.run { item.iconKey.toDrawable() }
+				icon = viewModel.run { item.iconKey.toDrawable() },
+				onClick = {
+					navigator.navigate(WriteRoute.Generate(
+						type = item.support.contentType,
+						support = item.support
+					))
+				}
 			)
 		}
 	}
 }
 
 @Composable
-fun QrMenuItem(
+private fun MenuItem(
 	item: GenerateType,
 	icon: DrawableResource?,
 	onClick: () -> Unit = {},
@@ -70,7 +75,10 @@ fun QrMenuItem(
 	) {
 		Box(
 			modifier = Modifier
-				.size(width = SeDimen.Dp80, height = SeDimen.Dp86)
+				.size(
+					width = SeDimen.Dp80,
+					height = SeDimen.Dp86
+				)
 				.padding(top = SeDimen.Dp6)
 				.clip(RoundedCornerShape(SeDimen.Dp6))
 				.background(colorScheme.surfaceVariant),

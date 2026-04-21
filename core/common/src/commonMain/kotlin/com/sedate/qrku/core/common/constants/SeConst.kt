@@ -7,6 +7,7 @@ object SeConst {
 	String Constants
 	================================= */
 	val String.Companion.EMPTY get() = ""
+	val String.Companion.SPACE get() = " "
 	val String.Companion.DOT get() = "."
 	val String.Companion.COMMA get() = ","
 
@@ -17,6 +18,7 @@ object SeConst {
 	val Companion.ONE get() = 1
 	val Companion.TWO get() = 2
 	val Companion.THREE get() = 3
+	val Companion.EIGHT get() = 8
 	val Companion.TEN get() = 10
 	val Companion.ELEVEN get() = 11
 	val Companion.TWELVE get() = 12

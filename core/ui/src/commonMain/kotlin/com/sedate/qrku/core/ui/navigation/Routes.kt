@@ -22,7 +22,7 @@ data object WriteRoute : Routes {
 	@Serializable
 	data class Generate(
 		val type: String,
-		val subType: BarcodeType.Support,
+		val support: BarcodeType.Support,
 	) : Routes
 }
 
