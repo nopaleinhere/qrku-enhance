@@ -9,11 +9,6 @@ import com.sedate.qrku.resources.Res
 import com.sedate.qrku.resources.barcode_ic
 import com.sedate.qrku.resources.calendar_ic
 import com.sedate.qrku.resources.contact_ic
-import com.sedate.qrku.resources.desc_barcode
-import com.sedate.qrku.resources.empty
-import com.sedate.qrku.resources.ic_barcode
-import com.sedate.qrku.resources.ic_link
-import com.sedate.qrku.resources.ic_text
 import com.sedate.qrku.resources.identity_ic
 import com.sedate.qrku.resources.link_ic
 import com.sedate.qrku.resources.mail_ic
@@ -23,7 +18,6 @@ import com.sedate.qrku.resources.sms_ic
 import com.sedate.qrku.resources.text_ic
 import com.sedate.qrku.resources.wifi_ic
 import org.jetbrains.compose.resources.DrawableResource
-import kotlin.collections.orEmpty
 
 @Stable
 class WriteViewModel : ViewModel() {

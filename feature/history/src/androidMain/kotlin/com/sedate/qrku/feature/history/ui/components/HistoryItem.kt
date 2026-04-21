@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -23,14 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import com.sedate.qrku.core.model.BarcodeHistory
 import com.sedate.qrku.core.ui.theme.Grey600
 import com.sedate.qrku.core.ui.theme.lightGray
 import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.core.ui.utils.combinedSafeClickable
 import com.sedate.qrku.resources.Res
-import com.sedate.qrku.resources.ic_link
 import com.sedate.qrku.resources.link_ic
 import org.jetbrains.compose.resources.painterResource
 

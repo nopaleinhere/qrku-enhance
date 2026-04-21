@@ -27,7 +27,7 @@ fun SeButton(
 		enabled = enabled && loading.not(),
 		modifier = modifier
 			.fillMaxWidth()
-			.height(SeDimen.Dp34),
+			.height(SeDimen.Dp42),
 		shape = RoundedCornerShape(SeDimen.Dp6),
 		elevation = ButtonDefaults.elevatedButtonElevation(
 			defaultElevation = SeDimen.Dp2,
