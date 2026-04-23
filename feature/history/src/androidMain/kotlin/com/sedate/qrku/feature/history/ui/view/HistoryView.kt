@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.ui.base.BaseUi
 import com.sedate.qrku.core.ui.navigation.Navigator
@@ -43,145 +44,150 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 actual fun HistoryView(
-	navigator: Navigator,
-	contentPadding: PaddingValues
+    navigator: Navigator,
+    contentPadding: PaddingValues
 ) {
-	val context = LocalContext.current
-	val viewModel: HistoryViewModel = koinViewModel()
+    val context = LocalContext.current
+    val layoutDirection = LocalLayoutDirection.current
+    val viewModel: HistoryViewModel = koinViewModel()
 
-	val listState = rememberSaveable(
-		saver = LazyListState.Saver
-	) {
-		LazyListState()
-	}
+    val listState = rememberSaveable(
+        saver = LazyListState.Saver
+    ) {
+        LazyListState()
+    }
 
-	with(viewModel) {
-		val historyData by historyData.collectAsState()
-		val selectedIds by selectedIds.collectAsState()
-		val isSelectionMode by isSelectionMode.collectAsState()
-		val isLoading by isLoading.collectAsState()
+    with(viewModel) {
+        val historyData by historyData.collectAsState()
+        val selectedIds by selectedIds.collectAsState()
+        val isSelectionMode by isSelectionMode.collectAsState()
+        val isLoading by isLoading.collectAsState()
 
-		LaunchedEffect(Unit) {
-			getHistory()
-			triggerToast(
-				context,
-				viewModel
-			)
-		}
+        LaunchedEffect(Unit) {
+            getHistory()
+            triggerToast(
+                context,
+                viewModel
+            )
+        }
 
-		BackHandler(enabled = isSelectionMode) {
-			clearSelection()
-		}
+        BackHandler(enabled = isSelectionMode) {
+            clearSelection()
+        }
 
-		BaseUi(
-			backgroundColor = colorScheme.background,
-			appBar = {
-				SelectionTopBar(
-					selectedCount = selectedIds.size,
-					isSelectionMode = isSelectionMode,
-					onSelectAll = {
-						selectAll()
-					},
-					onDelete = {
-						deleteSelected()
-					},
-					onClose = {
-						clearSelection()
-					}
-				)
-			},
-			content = {
-				when {
-					isLoading -> {
-						Box(
-							modifier = Modifier.fillMaxSize()
-						)
-					}
+        BaseUi(
+            backgroundColor = colorScheme.background,
+            appBar = {
+                SelectionTopBar(
+                    selectedCount = selectedIds.size,
+                    isSelectionMode = isSelectionMode,
+                    onSelectAll = {
+                        selectAll()
+                    },
+                    onDelete = {
+                        deleteSelected()
+                    },
+                    onClose = {
+                        clearSelection()
+                    }
+                )
+            },
+            content = {
+                when {
+                    isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
-					historyData.isEmpty() -> {
-						EmptyState(contentPadding)
-					}
+                    historyData.isEmpty() -> {
+                        EmptyState(contentPadding)
+                    }
 
-					else -> {
-						LazyColumn(
-							state = listState,
-							modifier = Modifier.fillMaxSize()
-								.padding(bottom = contentPadding.calculateBottomPadding()),
-							contentPadding = PaddingValues(vertical = SeDimen.Dp16),
-							verticalArrangement = Arrangement.spacedBy(SeDimen.Dp12)
-						) {
-							historyList(
-								historyData,
-								selectedIds,
-							) { selected, history ->
-								HistoryItem(
-									history,
-									selected = selected,
-									selectionMode = isSelectionMode,
-									onClick = {
-										if (isSelectionMode) {
-											toggleSelect(history.id)
-										} else {
-											navigator.navigate(
-												OverviewRoute.QrCapture(
-													actionType = BarcodeType.Action.HISTORY,
-													type = history.contentType,
-													input = history.result,
-													format = history.formatCode,
-													date = history.createdAt
-												)
-											)
-										}
-									},
-									onLongClick = {
-										toggleSelect(history.id)
-									}
-								)
-							}
-						}
-					}
-				}
-			}
-		)
-	}
+                    else -> {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize()
+                                .padding(
+                                    bottom = contentPadding.calculateBottomPadding(),
+                                    start = it.calculateRightPadding(layoutDirection),
+                                    end = it.calculateLeftPadding(layoutDirection)
+                                ),
+                            contentPadding = PaddingValues(vertical = SeDimen.Dp16),
+                            verticalArrangement = Arrangement.spacedBy(SeDimen.Dp12)
+                        ) {
+                            historyList(
+                                historyData,
+                                selectedIds,
+                            ) { selected, history ->
+                                HistoryItem(
+                                    history,
+                                    selected = selected,
+                                    selectionMode = isSelectionMode,
+                                    onClick = {
+                                        if (isSelectionMode) {
+                                            toggleSelect(history.id)
+                                        } else {
+                                            navigator.navigate(
+                                                OverviewRoute.QrCapture(
+                                                    actionType = BarcodeType.Action.HISTORY,
+                                                    type = history.contentType,
+                                                    input = history.result,
+                                                    format = history.formatCode,
+                                                    date = history.createdAt
+                                                )
+                                            )
+                                        }
+                                    },
+                                    onLongClick = {
+                                        toggleSelect(history.id)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable
 private fun EmptyState(contentPadding: PaddingValues) {
-	Column(
-		modifier = Modifier.fillMaxSize()
-			.padding(bottom = contentPadding.calculateBottomPadding()),
-		verticalArrangement = Arrangement.Center,
-		horizontalAlignment = Alignment.CenterHorizontally
-	) {
-		Image(
-			painterResource(Res.drawable.empty_img),
-			contentDescription = null,
-			modifier = Modifier.size(SeDimen.Dp160)
-		)
-		Spacer(Modifier.height(SeDimen.Dp16))
-		Text(
-			text = "No Records Found",
-			style = typography.bodyLarge,
-			color = colorScheme.onSurfaceVariant
-		)
-	}
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .padding(bottom = contentPadding.calculateBottomPadding()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painterResource(Res.drawable.empty_img),
+            contentDescription = null,
+            modifier = Modifier.size(SeDimen.Dp160)
+        )
+        Spacer(Modifier.height(SeDimen.Dp16))
+        Text(
+            text = "No Records Found",
+            style = typography.bodyLarge,
+            color = colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 private suspend fun triggerToast(
-	context: Context,
-	viewModel: HistoryViewModel
+    context: Context,
+    viewModel: HistoryViewModel
 ): Nothing = with(viewModel) {
-	uiEvent.collect { event ->
-		when (event) {
-			is HistoryUiEvent.ShowToast -> {
-				Toast.makeText(
-					context,
-					event.message,
-					Toast.LENGTH_SHORT
-				)
-					.show()
-			}
-		}
-	}
+    uiEvent.collect { event ->
+        when (event) {
+            is HistoryUiEvent.ShowToast -> {
+                Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+        }
+    }
 }

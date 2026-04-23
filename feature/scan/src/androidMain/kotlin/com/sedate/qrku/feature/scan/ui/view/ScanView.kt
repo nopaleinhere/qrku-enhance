@@ -56,289 +56,290 @@ import org.koin.compose.koinInject
 @Composable
 @RequiresPermission(Manifest.permission.VIBRATE)
 actual fun ScanView(
-	navigator: Navigator,
-	innerPadding: PaddingValues,
-	viewModel: ScanViewModel
+    navigator: Navigator,
+    innerPadding: PaddingValues,
+    viewModel: ScanViewModel
 ) = with(viewModel) {
-	val lifecycleOwner = LocalLifecycleOwner.current
-	val view = LocalView.current
-	val uriHandler = LocalUriHandler.current
-	val scope = rememberCoroutineScope()
-	val permission = rememberCameraPermissionState()
-	val controller: ScanController = koinInject()
-	val settingsData by settingsData.collectAsState()
-	val zoomState by controller.zoomState.collectAsState()
-	val zoomRatio by zoomRatio.collectAsState()
-	val minZoom by minZoom.collectAsState()
-	val maxZoom by maxZoom.collectAsState()
-	var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
-	val isBrowserOpen by isBrowserOpen.collectAsState()
-	val isFlash by isFlash.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val view = LocalView.current
+    val uriHandler = LocalUriHandler.current
+    val scope = rememberCoroutineScope()
+    val permission = rememberCameraPermissionState()
+    val controller: ScanController = koinInject()
+    val settingsData by settingsData.collectAsState()
+    val zoomState by controller.zoomState.collectAsState()
+    val zoomRatio by zoomRatio.collectAsState()
+    val minZoom by minZoom.collectAsState()
+    val maxZoom by maxZoom.collectAsState()
+    var isGalleryOpen by rememberSaveable { mutableStateOf(false) }
+    val isBrowserOpen by isBrowserOpen.collectAsState()
+    val isFlash by isFlash.collectAsState()
 
-	val openGallery = rememberGalleryPicker(
-		onImagePicked = { uri ->
-			isGalleryOpen = false
+    val openGallery = rememberGalleryPicker(
+        onImagePicked = { uri ->
+            isGalleryOpen = false
 
-			controller.scanFromImage(uri) { result ->
-				emitScan(
-					ScanResult(
-						result.value,
-						result.format
-					)
-				)
-			}
-		},
-		onCancel = {
-			isGalleryOpen = false
-			controller.startScan { result ->
-				emitScan(
-					ScanResult(
-						result.value,
-						result.format
-					)
-				)
-			}
-		}
-	)
+            controller.scanFromImage(uri) { result ->
+                emitScan(
+                    ScanResult(
+                        result.value,
+                        result.format
+                    )
+                )
+            }
+        },
+        onCancel = {
+            isGalleryOpen = false
+            controller.startScan { result ->
+                emitScan(
+                    ScanResult(
+                        result.value,
+                        result.format
+                    )
+                )
+            }
+        }
+    )
 
-	when {
-		permission.isGranted() -> {
-			LaunchedEffect(Unit) {
-				viewModel.resetScan()
+    when {
+        permission.isGranted() -> {
+            LaunchedEffect(Unit) {
+                viewModel.resetScan()
 
-				controller.startScan { result ->
-					emitScan(
-						ScanResult(
-							result.value,
-							result.format
-						)
-					)
-				}
+                controller.startScan { result ->
+                    emitScan(
+                        ScanResult(
+                            result.value,
+                            result.format
+                        )
+                    )
+                }
 
-				scanEvent.collect { result ->
-					handleScanResult(
-						settings = settingsData,
-						navigator = navigator,
-						viewModel = viewModel,
-						controller = controller,
-						result = result,
-						openLink = { url ->
-							setBrowserOpen(true)
-							controller.stopScan()
+                scanEvent.collect { result ->
+                    handleScanResult(
+                        settings = settingsData,
+                        navigator = navigator,
+                        viewModel = viewModel,
+                        controller = controller,
+                        result = result,
+                        openLink = { url ->
+                            setBrowserOpen(true)
+                            controller.stopScan()
 
-							uriHandler.openUri(url)
-						}
-					)
-				}
-			}
+                            uriHandler.openUri(url)
+                        }
+                    )
+                }
+            }
 
-			LaunchedEffect(zoomState) {
-				zoomState?.let {
-					setZoomRatio(
-						it.zoomRatio,
-						it.minZoomRatio,
-						it.maxZoomRatio
-					)
-				}
-			}
+            LaunchedEffect(zoomState) {
+                zoomState?.let {
+                    setZoomRatio(
+                        it.zoomRatio,
+                        it.minZoomRatio,
+                        it.maxZoomRatio
+                    )
+                }
+            }
 
-			DisposableEffect(Unit) {
-				onDispose { controller.stopScan() }
-			}
+            DisposableEffect(Unit) {
+                onDispose { controller.stopScan() }
+            }
 
-			DisposableEffect(view) {
-				val listener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
-					handleWindowFocus(
-						hasFocus = hasFocus,
-						isBrowserOpen = isBrowserOpen,
-						controller = controller,
-						viewModel = viewModel,
-						emitScan =
-							::emitScan
-					)
-				}
-				view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
-				onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
-			}
+            DisposableEffect(view) {
+                val listener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
+                    handleWindowFocus(
+                        hasFocus = hasFocus,
+                        isBrowserOpen = isBrowserOpen,
+                        controller = controller,
+                        viewModel = viewModel,
+                        emitScan =
+                            ::emitScan
+                    )
+                }
+                view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
+                onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
+            }
 
-			ConfirmUrlDialog(
-				viewModel = viewModel,
-				openLink = { url ->
-					controller.stopScan()
-					uriHandler.openUri(url)
-					scope.launch {
-						delay(Long.THREE_HUNDRED)
-						setBrowserOpen(true)
-					}
-				}
-			)
+            ConfirmUrlDialog(
+                viewModel = viewModel,
+                openLink = { url ->
+                    controller.stopScan()
+                    uriHandler.openUri(url)
+                    scope.launch {
+                        delay(Long.THREE_HUNDRED)
+                        setBrowserOpen(true)
+                    }
+                }
+            )
 
-			Box(Modifier.fillMaxSize()) {
-				CameraPreview(
-					Modifier.fillMaxSize(),
-					onPreviewReady = { previewView ->
-						controller.attachPreview(
-							previewView = previewView,
-							lifecycleOwner = lifecycleOwner
-						)
+            Box(Modifier.fillMaxSize()) {
+                CameraPreview(
+                    Modifier.fillMaxSize(),
+                    onPreviewReady = { previewView ->
+                        controller.attachPreview(
+                            previewView = previewView,
+                            lifecycleOwner = lifecycleOwner
+                        )
 
-						controller.getZoomRange { min, max ->
-							setZoomRatio(
-								min,
-								min,
-								max
-							)
-						}
-					}
-				)
+                        controller.getZoomRange { min, max ->
+                            setZoomRatio(
+                                min,
+                                min,
+                                max
+                            )
+                        }
+                    }
+                )
 
-				ScannerDarkOverlay()
-				ScannerCornerOverlay(this)
+                ScannerDarkOverlay()
+                ScannerCornerOverlay(this)
 
-				ScannerTopBar(
-					isFlash = isFlash,
-					onFlashClick = {
-						val isFlash = setFlash(isFlash.not())
-						controller.toggleFlash(isFlash)
-					},
-					onGalleryClick = {
-						isGalleryOpen = true
-						controller.stopScan()
-						openGallery()
-					}
-				)
+                ScannerTopBar(
+                    isFlash = isFlash,
+                    onFlashClick = {
+                        val isFlash = setFlash(isFlash.not())
+                        controller.toggleFlash(isFlash)
+                    },
+                    onGalleryClick = {
+                        isGalleryOpen = true
+                        controller.stopScan()
+                        openGallery()
+                    }
+                )
 
-				ZoomSlider(
-					value = zoomRatio,
-					onValueChange = { value ->
-						setZoomRatio(value)
-						controller.setZoomRatio(value)
-					},
-					valueRange = minZoom..maxZoom,
-					modifier = Modifier
-						.align(Alignment.BottomCenter)
-						.padding(bottom = innerPadding.calculateBottomPadding() + SeDimen.Dp40)
-				)
-			}
-		}
+                ZoomSlider(
+                    value = zoomRatio,
+                    onValueChange = { value ->
+                        setZoomRatio(value)
+                        controller.setZoomRatio(value)
+                    },
+                    valueRange = minZoom..maxZoom,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = innerPadding.calculateBottomPadding() + SeDimen.Dp40)
+                )
+            }
+        }
 
-		else -> {
-			BaseUi(
-				appBar = {
-					SeAppBar(
-						state = AppBarState(
-							title = "Scan QRKU",
-							type = AppBarType.TOP_LEVEL
-						)
-					)
-				},
-				content = {
-					CameraPermissionContent(
-						permanentlyDenied = permission.isPermanentlyDenied(),
-						onRequest = permission.request,
-						onOpenSettings = permission.openSettings
-					)
-				}
-			)
-		}
-	}
+        else -> {
+            BaseUi(
+                appBar = {
+                    SeAppBar(
+                        state = AppBarState(
+                            title = "Scan QRKU",
+                            type = AppBarType.TOP_LEVEL
+                        )
+                    )
+                },
+                content = {
+                    CameraPermissionContent(
+                        permanentlyDenied = permission.isPermanentlyDenied(),
+                        onRequest = permission.request,
+                        onOpenSettings = permission.openSettings,
+                        modifier = Modifier.padding(it)
+                    )
+                }
+            )
+        }
+    }
 }
 
 @Composable
 fun ConfirmUrlDialog(
-	viewModel: ScanViewModel,
-	openLink: (String) -> Unit
+    viewModel: ScanViewModel,
+    openLink: (String) -> Unit
 ) = with(viewModel) {
-	val confirmUrl by confirmUrl.collectAsState()
+    val confirmUrl by confirmUrl.collectAsState()
 
-	confirmUrl?.let { url ->
-		val normalized = normalizeUrl(url)
-		val domain = extractDomain(normalized)
+    confirmUrl?.let { url ->
+        val normalized = normalizeUrl(url)
+        val domain = extractDomain(normalized)
 
-		SeBottomDialog(
-			icon = Icons.Default.OpenInBrowser,
-			title = "Open link?",
-			message = domain,
-			description = normalized,
-			onConfirm = {
-				openLink(normalized)
-				dismissDialog()
-				resetScan()
-			},
-			onDismiss = {
-				dismissDialog()
-				resetScan()
-			}
-		)
-	}
+        SeBottomDialog(
+            icon = Icons.Default.OpenInBrowser,
+            title = "Open link?",
+            message = domain,
+            description = normalized,
+            onConfirm = {
+                openLink(normalized)
+                dismissDialog()
+                resetScan()
+            },
+            onDismiss = {
+                dismissDialog()
+                resetScan()
+            }
+        )
+    }
 }
 
 @RequiresPermission(Manifest.permission.VIBRATE)
 fun handleScanResult(
-	settings: SettingsData,
-	navigator: Navigator,
-	viewModel: ScanViewModel,
-	controller: ScanController,
-	result: ScanResult,
-	openLink: (String) -> Unit
+    settings: SettingsData,
+    navigator: Navigator,
+    viewModel: ScanViewModel,
+    controller: ScanController,
+    result: ScanResult,
+    openLink: (String) -> Unit
 ) {
-	val value = result.value
+    val value = result.value
 
-	if (settings.isBeepEnabled) controller.beep()
-	if (settings.isVibrateEnabled) controller.vibrate()
+    if (settings.isBeepEnabled) controller.beep()
+    if (settings.isVibrateEnabled) controller.vibrate()
 
-	if (settings.isAutoOpenEnabled && value.isUrl()) {
-		if (settings.isConfirmBeforeOpenEnabled.not()) {
-			val normalized = normalizeUrl(value)
-			openLink(normalized)
-		} else {
-			viewModel.showConfirmDialog(value)
-		}
-	} else {
-		navigator.navigate(
-			OverviewRoute.QrCapture(
-				actionType = BarcodeType.Action.SCAN,
-				type = String.EMPTY,
-				input = value,
-				format = result.format
-			)
-		)
-	}
+    if (settings.isAutoOpenEnabled && value.isUrl()) {
+        if (settings.isConfirmBeforeOpenEnabled.not()) {
+            val normalized = normalizeUrl(value)
+            openLink(normalized)
+        } else {
+            viewModel.showConfirmDialog(value)
+        }
+    } else {
+        navigator.navigate(
+            OverviewRoute.QrCapture(
+                actionType = BarcodeType.Action.SCAN,
+                type = String.EMPTY,
+                input = value,
+                format = result.format
+            )
+        )
+    }
 }
 
 fun handleWindowFocus(
-	hasFocus: Boolean,
-	isBrowserOpen: Boolean,
-	controller: ScanController,
-	viewModel: ScanViewModel,
-	emitScan: (ScanResult) -> Unit
+    hasFocus: Boolean,
+    isBrowserOpen: Boolean,
+    controller: ScanController,
+    viewModel: ScanViewModel,
+    emitScan: (ScanResult) -> Unit
 ) {
-	if (hasFocus) {
-		onReturnFromBrowser(
-			isBrowserOpen,
-			controller,
-			viewModel,
-			emitScan
-		)
-	}
+    if (hasFocus) {
+        onReturnFromBrowser(
+            isBrowserOpen,
+            controller,
+            viewModel,
+            emitScan
+        )
+    }
 }
 
 fun onReturnFromBrowser(
-	isBrowserOpen: Boolean,
-	controller: ScanController,
-	viewModel: ScanViewModel,
-	emitScan: (ScanResult) -> Unit
+    isBrowserOpen: Boolean,
+    controller: ScanController,
+    viewModel: ScanViewModel,
+    emitScan: (ScanResult) -> Unit
 ) = with(viewModel) {
-	if (isBrowserOpen) {
-		setBrowserOpen(false)
-		resetScan()
-		controller.startScan { result ->
-			emitScan(
-				ScanResult(
-					result.value,
-					result.format
-				)
-			)
-		}
-	}
+    if (isBrowserOpen) {
+        setBrowserOpen(false)
+        resetScan()
+        controller.startScan { result ->
+            emitScan(
+                ScanResult(
+                    result.value,
+                    result.format
+                )
+            )
+        }
+    }
 }

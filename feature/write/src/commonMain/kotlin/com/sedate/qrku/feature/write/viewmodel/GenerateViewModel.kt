@@ -22,7 +22,7 @@ class GenerateViewModel : ViewModel() {
 
 @Stable
 class FormState(
-	val values: SnapshotStateMap<String, String> = mutableStateMapOf(),
+	val values: SnapshotStateMap<String, Any> = mutableStateMapOf(),
 	val errors: SnapshotStateMap<String, String?> = mutableStateMapOf(),
 	val touched: SnapshotStateMap<String, Boolean> = mutableStateMapOf()
 )

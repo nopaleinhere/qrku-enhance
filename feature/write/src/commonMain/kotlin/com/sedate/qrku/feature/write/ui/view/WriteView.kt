@@ -1,11 +1,13 @@
 package com.sedate.qrku.feature.write.ui.view
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.ZERO
 import com.sedate.qrku.core.ui.base.BaseUi
@@ -21,38 +23,41 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun WriteView(
-	navigator: Navigator,
-	viewModel: WriteViewModel = koinViewModel()
+    navigator: Navigator,
+    viewModel: WriteViewModel = koinViewModel()
 ) = with(viewModel) {
-	var selectedTab by rememberSaveable { mutableStateOf(Int.ZERO) }
+    var selectedTab by rememberSaveable { mutableStateOf(Int.ZERO) }
 
-	val currentCategory = if (selectedTab == Int.ZERO) BarcodeType.Category.QR
-	else BarcodeType.Category.BARCODE
+    val currentCategory = if (selectedTab == Int.ZERO) BarcodeType.Category.QR
+    else BarcodeType.Category.BARCODE
 
-	val data = getByCategory(currentCategory)
+    val data = getByCategory(currentCategory)
 
-	BaseUi(
-		backgroundColor = Grey100,
-		appBar = {
-			SeAppBar(
-				AppBarState(
-					"Generate QRKU",
-					type = AppBarType.TOP_LEVEL
-				)
-			)
-		},
-		tabBar = {
-			TabBar(
-				selectedIndex = selectedTab,
-				onSelected = { selectedTab = it })
-		},
-		content = {
-			AnimatedContent(targetState = data) { list ->
-				MenuGrid(
-					navigator = navigator,
-					items = list,
-					viewModel = viewModel
-				)
-			}
-		})
+    BaseUi(
+        backgroundColor = Grey100,
+        appBar = {
+            SeAppBar(
+                AppBarState(
+                    "Generate QRKU",
+                    type = AppBarType.TOP_LEVEL
+                )
+            )
+        },
+        tabBar = {
+            TabBar(
+                selectedIndex = selectedTab,
+                onSelected = { selectedTab = it })
+        },
+        content = {
+            AnimatedContent(
+                targetState = data,
+                modifier = Modifier.padding(it)
+            ) { list ->
+                MenuGrid(
+                    navigator = navigator,
+                    items = list,
+                    viewModel = viewModel
+                )
+            }
+        })
 }

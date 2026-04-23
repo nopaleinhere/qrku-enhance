@@ -1,5 +1,8 @@
 package com.sedate.qrku.core.ui.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object SeDimen {
@@ -67,4 +70,9 @@ object SeDimen {
 	val Dp180 = 180.dp
 	val Dp240 = 240.dp
 	val Dp320 = 320.dp
+}
+
+@Composable
+fun Int.toDpValue(): Dp {
+	return with(LocalDensity.current) { this@toDpValue.toDp() }
 }

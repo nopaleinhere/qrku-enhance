@@ -35,7 +35,6 @@ fun SettingsView(
 ) = with(viewModel) {
 	BaseUi(
 		backgroundColor = Grey100,
-		autoVerticalPadding = false,
 		appBar = {
 			SeAppBar(
 				state = AppBarState(

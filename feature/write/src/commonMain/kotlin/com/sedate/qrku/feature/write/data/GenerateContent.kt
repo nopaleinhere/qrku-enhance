@@ -6,7 +6,10 @@ sealed class GenerateContent {
 	data class Contact(
 		val name: String,
 		val phone: String,
-		val email: String = String.EMPTY
+		val email: String = String.EMPTY,
+		val organization: String = String.EMPTY,
+		val address: String = String.EMPTY,
+		val notes: String = String.EMPTY
 	) : GenerateContent()
 
 	data class Phone(val number: String) : GenerateContent()
@@ -35,7 +38,8 @@ sealed class GenerateContent {
 		val title: String,
 		val location: String,
 		val start: String,
-		val end: String
+		val end: String,
+		val description: String
 	) : GenerateContent()
 
 	data class VCard(

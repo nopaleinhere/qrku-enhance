@@ -18,6 +18,10 @@ object SeConst {
 	val Companion.ONE get() = 1
 	val Companion.TWO get() = 2
 	val Companion.THREE get() = 3
+	val Companion.FOUR get() = 4
+	val Companion.FIVE get() = 5
+	val Companion.SIX get() = 6
+	val Companion.SEVEN get() = 7
 	val Companion.EIGHT get() = 8
 	val Companion.TEN get() = 10
 	val Companion.ELEVEN get() = 11
