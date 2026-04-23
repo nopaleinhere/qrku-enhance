@@ -5,144 +5,127 @@ import com.google.zxing.Result
 import com.google.zxing.client.result.AddressBookParsedResult
 import com.google.zxing.client.result.CalendarParsedResult
 import com.google.zxing.client.result.EmailAddressParsedResult
-import com.google.zxing.client.result.GeoParsedResult
-import com.google.zxing.client.result.ISBNParsedResult
-import com.google.zxing.client.result.ParsedResultType
+import com.google.zxing.client.result.ParsedResult
 import com.google.zxing.client.result.ProductParsedResult
 import com.google.zxing.client.result.ResultParser
 import com.google.zxing.client.result.SMSParsedResult
+import com.google.zxing.client.result.TelParsedResult
 import com.google.zxing.client.result.TextParsedResult
 import com.google.zxing.client.result.URIParsedResult
-import com.google.zxing.client.result.VINParsedResult
 import com.google.zxing.client.result.WifiParsedResult
 
 fun parseScanResult(
-	value: String,
-	format: BarcodeFormat
+    value: String,
+    format: BarcodeFormat
 ): ParsedContent {
-	val result = Result(
-		value,
-		null,
-		null,
-		format
-	)
-	val parsed = ResultParser.parseResult(result)
+    val result = Result(
+        value,
+        null,
+        null,
+        format
+    )
+    val parsed = ResultParser.parseResult(result)
 
-	return when (parsed.type) {
-		ParsedResultType.URI -> {
-			val r = parsed as URIParsedResult
-			ParsedContent.Url(r.uri)
-		}
+    return parsed.toParsedContent(value)
+}
 
-		ParsedResultType.TEXT -> {
-			val r = parsed as TextParsedResult
-			ParsedContent.Text(r.text)
-		}
 
-		ParsedResultType.PRODUCT -> {
-			val r = parsed as ProductParsedResult
-			ParsedContent.Product(r.productID)
-		}
+private fun ParsedResult.toParsedContent(raw: String): ParsedContent {
+    return when (this) {
+        is URIParsedResult -> ParsedContent.Url(uri)
 
-		ParsedResultType.WIFI -> {
-			val r = parsed as WifiParsedResult
-			ParsedContent.Wifi(
-				ssid = r.ssid,
-				password = r.password,
-				encryption = r.networkEncryption
-			)
-		}
+        is TextParsedResult -> {
+            if (raw.startsWith("http://") || raw.startsWith("https://")) {
+                ParsedContent.Url(raw)
+            } else {
+                ParsedContent.Text(text)
+            }
+        }
 
-		ParsedResultType.ADDRESSBOOK -> {
-			val r = parsed as AddressBookParsedResult
-			ParsedContent.Contact(
-				name = r.names?.firstOrNull()
-			)
-		}
+        is TelParsedResult -> ParsedContent.Phone(
+            number = number
+        )
 
-		ParsedResultType.EMAIL_ADDRESS -> {
-			val r = parsed as EmailAddressParsedResult
-			ParsedContent.Email(
-				email = r.tos?.firstOrNull()
-			)
-		}
+        is WifiParsedResult -> ParsedContent.Wifi(
+            ssid = ssid,
+            password = password,
+            encryption = networkEncryption
+        )
 
-		ParsedResultType.SMS -> {
-			val r = parsed as SMSParsedResult
-			ParsedContent.Sms(
-				number = r.numbers?.firstOrNull(),
-				message = r.body
-			)
-		}
+        is AddressBookParsedResult -> ParsedContent.Contact(
+            name = names?.firstOrNull(),
+            phone = phoneNumbers?.firstOrNull(),
+            email = emails?.firstOrNull(),
+            organization = org,
+            address = addresses?.firstOrNull(),
+            note = note
+        )
 
-		ParsedResultType.GEO -> {
-			val r = parsed as GeoParsedResult
-			ParsedContent.Geo(
-				lat = r.latitude,
-				lng = r.longitude
-			)
-		}
+        is EmailAddressParsedResult -> ParsedContent.Email(
+            email = tos?.firstOrNull(),
+            subject = subject,
+            body = body
+        )
 
-		ParsedResultType.CALENDAR -> {
-			val r = parsed as CalendarParsedResult
-			ParsedContent.Calendar(
-				title = r.summary,
-				description = r.description
-			)
-		}
+        is SMSParsedResult -> ParsedContent.Sms(
+            number = numbers?.firstOrNull(),
+            message = body
+        )
 
-		ParsedResultType.ISBN -> {
-			val r = parsed as ISBNParsedResult
-			ParsedContent.ISBN(
-				isbn = r.isbn
-			)
-		}
+        is CalendarParsedResult -> ParsedContent.Calendar(
+            title = summary,
+            location = location,
+            description = description,
+            start = startTimestamp.toString(),
+            end = endTimestamp.toString()
+        )
 
-		ParsedResultType.VIN -> {
-			val r = parsed as VINParsedResult
-			ParsedContent.VIN(
-				vin = r.vin
-			)
-		}
+        is ProductParsedResult -> ParsedContent.Product(
+            code = productID
+        )
 
-		else -> {
-			ParsedContent.Text(parsed.displayResult)
-		}
-	}
+        else -> ParsedContent.Text(displayResult.ifEmpty { raw })
+    }
 }
 
 sealed class ParsedContent {
-	data class Url(val url: String) : ParsedContent()
-	data class Text(val text: String) : ParsedContent()
-	data class Product(val code: String) : ParsedContent()
-	data class Wifi(
-		val ssid: String,
-		val password: String?,
-		val encryption: String
-	) : ParsedContent()
+    data class Url(val url: String) : ParsedContent()
+    data class Text(val text: String) : ParsedContent()
+    data class Product(val code: String) : ParsedContent()
 
-	data class Contact(val name: String?) : ParsedContent()
-	data class Email(val email: String?) : ParsedContent()
-	data class Sms(
-		val number: String?,
-		val message: String?
-	) : ParsedContent()
+    data class Phone(val number: String) : ParsedContent()
+    data class Wifi(
+        val ssid: String,
+        val password: String?,
+        val encryption: String
+    ) : ParsedContent()
 
-	data class Geo(
-		val lat: Double,
-		val lng: Double
-	) : ParsedContent()
+    data class Contact(
+        val name: String?,
+        val phone: String?,
+        val email: String?,
+        val organization: String?,
+        val address: String?,
+        val note: String?
+    ) : ParsedContent()
 
-	data class Calendar(
-		val title: String?,
-		val description: String?,
-	) : ParsedContent()
+    data class Email(
+        val email: String?,
+        val subject: String?,
+        val body: String?
+    ) : ParsedContent()
 
-	data class ISBN(
-		val isbn: String?
-	) : ParsedContent()
+    data class Sms(
+        val number: String?,
+        val message: String?
+    ) : ParsedContent()
 
-	data class VIN(
-		val vin: String?
-	) : ParsedContent()
+    data class Calendar(
+        val title: String?,
+        val location: String?,
+        val description: String?,
+        val start: String?,
+        val end: String?
+    ) : ParsedContent()
+
 }

@@ -4,25 +4,29 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
-import com.sedate.qrku.feature.write.data.GenerateContent
-import com.sedate.qrku.feature.write.data.GenerateEngine
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.sedate.qrku.feature.write.data.FormPart
 
 @Stable
 class GenerateViewModel : ViewModel() {
-	private val generateEngine = GenerateEngine()
-	private val _result = MutableStateFlow<Pair<String, Int>?>(null)
-	val result = _result.asStateFlow()
+    fun validateForm(
+        fields: List<FormPart>,
+        state: FormState
+    ): Boolean {
+        var isValid = true
 
-	fun generate(content: GenerateContent) {
-		_result.value = generateEngine.execute(content)
-	}
+        fields.forEach { field ->
+            val error = field.validate(state.values[field.key])
+            state.errors[field.key] = error
+            if (error != null) isValid = false
+        }
+
+        return isValid
+    }
 }
 
 @Stable
 class FormState(
-	val values: SnapshotStateMap<String, Any> = mutableStateMapOf(),
-	val errors: SnapshotStateMap<String, String?> = mutableStateMapOf(),
-	val touched: SnapshotStateMap<String, Boolean> = mutableStateMapOf()
+    val values: SnapshotStateMap<String, Any> = mutableStateMapOf(),
+    val errors: SnapshotStateMap<String, String?> = mutableStateMapOf(),
+    val touched: SnapshotStateMap<String, Boolean> = mutableStateMapOf()
 )

@@ -5,6 +5,7 @@ import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.FOUR
 import com.sedate.qrku.core.common.constants.SeConst.SIX
 import com.sedate.qrku.core.common.constants.SeConst.TWELVE
+import com.sedate.qrku.core.common.utils.isValidUpcA
 
 object FormSchemaRegistry {
     private val schemas: Map<BarcodeType.Support, List<FormPart>> = mapOf(
@@ -18,7 +19,7 @@ object FormSchemaRegistry {
         BarcodeType.Support.CALENDAR to calendarSchema,
         BarcodeType.Support.VCARD to vcardSchema,
         BarcodeType.Support.PLAY_STORE to playStoreSchema,
-        BarcodeType.Support.UPC_A to barcodeSchema
+        BarcodeType.Support.UPC_A to upcASchema
     )
 
     fun get(type: BarcodeType.Support): List<FormPart> {
@@ -253,16 +254,19 @@ private val playStoreSchema = listOf(
     )
 )
 
-private val barcodeSchema = listOf(
+private val upcASchema = listOf(
     FormPart.TextField(
         key = "barcode",
         label = "UPC-A Code",
         keyboardType = KeyboardType.Number,
         maxLength = Int.TWELVE,
-        description = "Must be exactly 12 digits",
+        description = "Must be exactly 12 digits (valid UPC-A)",
         validator = {
             when {
+                it.isEmpty() -> "Required"
+                it.all(Char::isDigit).not() -> "Only numbers allowed"
                 it.length != Int.TWELVE -> "Must be 12 digits"
+                isValidUpcA(it).not() -> "Invalid UPC-A (check digit wrong)"
                 else -> null
             }
         }

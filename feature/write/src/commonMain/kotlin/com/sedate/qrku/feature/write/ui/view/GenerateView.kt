@@ -20,7 +20,6 @@ import com.sedate.qrku.core.ui.navigation.OverviewRoute
 import com.sedate.qrku.feature.write.data.CodeEncoder
 import com.sedate.qrku.feature.write.data.FormSchemaRegistry
 import com.sedate.qrku.feature.write.data.mapToContent
-import com.sedate.qrku.feature.write.data.validateForm
 import com.sedate.qrku.feature.write.ui.components.DynamicForm
 import com.sedate.qrku.feature.write.viewmodel.FormState
 import com.sedate.qrku.feature.write.viewmodel.GenerateViewModel
@@ -79,7 +78,6 @@ fun GenerateView(
                     if (valid.not()) return@SeButton
 
                     val content = mapToContent(selectedType, formState.values)
-                    generate(content)
 
                     navigator.navigate(
                         OverviewRoute.QrCapture(

@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.common.constants.SeConst.EMPTY
@@ -42,133 +41,131 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 actual fun QrCaptureView(
-	navigator: Navigator,
-	actionType: BarcodeType.Action,
-	type: String,
-	input: String,
-	format: Int?,
-	date: Long?
+    navigator: Navigator,
+    actionType: BarcodeType.Action,
+    type: String,
+    input: String,
+    format: Int?,
+    date: Long?
 ) {
-	val viewModel: QrCaptureViewModel = koinViewModel()
+    val viewModel: QrCaptureViewModel = koinViewModel()
 
-	with(viewModel) {
-		val uriHandler = LocalUriHandler.current
-		val contentType = remember { mutableStateOf(String.EMPTY) }
+    with(viewModel) {
+        val uriHandler = LocalUriHandler.current
+        val contentType = remember { mutableStateOf(String.EMPTY) }
 
-		val qrImage: MutableState<Bitmap?> = remember { mutableStateOf(null) }
+        val qrImage: MutableState<Bitmap?> = remember { mutableStateOf(null) }
 
-		LaunchedEffect(
-			input,
-			format
-		) {
-			QrGenerator.generate(
-				text = input,
-				format = format,
-				size = Int.FIVE_HUNDRED_TWELVE,
-				onType = {
-					contentType.value = when (it) {
-						is ParsedContent.Text -> "Text"
-						is ParsedContent.Url -> "Url"
-						is ParsedContent.Product -> "Product"
-						is ParsedContent.Wifi -> "Wifi"
-						is ParsedContent.Contact -> "Contact"
-						is ParsedContent.Email -> "Email"
-						is ParsedContent.Sms -> "Sms"
-						is ParsedContent.Geo -> "Geo"
-						is ParsedContent.VIN -> "VIN"
-						is ParsedContent.ISBN -> "ISBN"
-						is ParsedContent.Calendar -> "Calendar"
-					}
-				},
-				onCapture = {
-					qrImage.value = it
-				}
-			)
-		}
+        LaunchedEffect(
+            input,
+            format
+        ) {
+            QrGenerator.generate(
+                text = input,
+                format = format,
+                size = Int.FIVE_HUNDRED_TWELVE,
+                onType = {
+                    contentType.value = when (it) {
+                        is ParsedContent.Text -> "Text"
+                        is ParsedContent.Url -> "Url"
+                        is ParsedContent.Product -> "Product"
+                        is ParsedContent.Wifi -> "Wifi"
+                        is ParsedContent.Contact -> "Contact"
+                        is ParsedContent.Phone -> "Phone"
+                        is ParsedContent.Email -> "Email"
+                        is ParsedContent.Sms -> "Sms"
+                        is ParsedContent.Calendar -> "Calendar"
+                    }
+                },
+                onCapture = {
+                    qrImage.value = it
+                }
+            )
+        }
 
-		LaunchedEffect(contentType) {
-			if (contentType.value.isNotEmpty() && actionType != BarcodeType.Action.HISTORY) {
-				saveResult(
-					actionType = actionType,
-					value = input,
-					contentType = contentType.value,
-					format = typeFormat(format),
-					formatCode = format
-				)
-			}
-		}
+        LaunchedEffect(contentType) {
+            if (contentType.value.isNotEmpty() && actionType != BarcodeType.Action.HISTORY) {
+                saveResult(
+                    actionType = actionType,
+                    value = input,
+                    contentType = contentType.value,
+                    format = typeFormat(format),
+                    formatCode = format
+                )
+            }
+        }
 
-		ConfirmUrlDialog(
-			viewModel = viewModel,
-			openLink = {
-				if (input.isValidUrl()) uriHandler.openUri(input)
-			}
-		)
+        ConfirmUrlDialog(
+            viewModel = viewModel,
+            openLink = {
+                if (input.isValidUrl()) uriHandler.openUri(input)
+            }
+        )
 
-		BaseUi(
-			appBar = {
-				SeAppBar(
-					state = AppBarState(
-						title = when (actionType) {
-							BarcodeType.Action.SCAN -> "Scan Overview"
-							BarcodeType.Action.CREATE -> "Create Overview"
-							BarcodeType.Action.HISTORY -> "History Overview"
-						},
-						type = AppBarType.SUB_LEVEL
-					),
-					onBackClick = {
-						navigator.pop()
-					}
-				)
-			},
-			content = {
-				Column(
-					modifier = Modifier.fillMaxWidth()
-						.padding(top = SeDimen.Dp16)
-				) {
-					ResultDescription(
-						input,
-						viewModel
-					)
+        BaseUi(
+            appBar = {
+                SeAppBar(
+                    state = AppBarState(
+                        title = when (actionType) {
+                            BarcodeType.Action.SCAN -> "Scan Overview"
+                            BarcodeType.Action.CREATE -> "Create Overview"
+                            BarcodeType.Action.HISTORY -> "History Overview"
+                        },
+                        type = AppBarType.SUB_LEVEL
+                    ),
+                    onBackClick = {
+                        navigator.pop()
+                    }
+                )
+            },
+            content = {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = SeDimen.Dp16)
+                ) {
+                    ResultDescription(
+                        input,
+                        viewModel
+                    )
 
-					BarcodeDescription(
-						qrImage = qrImage.value,
-						contentType = contentType.value,
-						type = type,
-						format = format,
-						date = date
-					)
+                    BarcodeDescription(
+                        qrImage = qrImage.value,
+                        contentType = contentType.value,
+                        type = type,
+                        format = format,
+                        date = date
+                    )
 
-					ActionButton(qrImage.value)
-				}
-			}
-		)
-	}
+                    ActionButton(qrImage.value)
+                }
+            }
+        )
+    }
 }
 
 @Composable
 fun ConfirmUrlDialog(
-	viewModel: QrCaptureViewModel,
-	openLink: (String) -> Unit
+    viewModel: QrCaptureViewModel,
+    openLink: (String) -> Unit
 ) = with(viewModel) {
-	val confirmUrl by confirmUrl.collectAsState()
+    val confirmUrl by confirmUrl.collectAsState()
 
-	confirmUrl?.let { url ->
-		val normalized = normalizeUrl(url)
-		val domain = extractDomain(normalized)
+    confirmUrl?.let { url ->
+        val normalized = normalizeUrl(url)
+        val domain = extractDomain(normalized)
 
-		SeBottomDialog(
-			icon = Icons.Default.OpenInBrowser,
-			title = "Open link?",
-			message = domain,
-			description = normalized,
-			onConfirm = {
-				openLink(normalized)
-				dismissDialog()
-			},
-			onDismiss = {
-				dismissDialog()
-			}
-		)
-	}
+        SeBottomDialog(
+            icon = Icons.Default.OpenInBrowser,
+            title = "Open link?",
+            message = domain,
+            description = normalized,
+            onConfirm = {
+                openLink(normalized)
+                dismissDialog()
+            },
+            onDismiss = {
+                dismissDialog()
+            }
+        )
+    }
 }
