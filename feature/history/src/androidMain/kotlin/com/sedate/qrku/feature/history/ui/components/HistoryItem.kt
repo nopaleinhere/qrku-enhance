@@ -22,14 +22,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import com.sedate.qrku.core.common.constants.SeConst.ONE
 import com.sedate.qrku.core.model.BarcodeHistory
 import com.sedate.qrku.core.ui.theme.Grey600
 import com.sedate.qrku.core.ui.theme.lightGray
 import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.core.ui.utils.combinedSafeClickable
+import com.sedate.qrku.feature.history.data.HistoryMapper
+import com.sedate.qrku.feature.history.viewmodel.HistoryViewModel
 import com.sedate.qrku.resources.Res
 import com.sedate.qrku.resources.link_ic
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun HistoryItem(
@@ -37,8 +42,11 @@ internal fun HistoryItem(
 	selected: Boolean,
 	selectionMode: Boolean,
 	onClick: () -> Unit,
-	onLongClick: () -> Unit
-) {
+	onLongClick: () -> Unit,
+	viewModel: HistoryViewModel = koinViewModel()
+) = with(viewModel) {
+	val ui = HistoryMapper.map(history)
+
 	Card(
 		modifier = Modifier.fillMaxWidth()
 			.clip(CardDefaults.shape)
@@ -68,21 +76,23 @@ internal fun HistoryItem(
 				)
 				Spacer(Modifier.width(SeDimen.Dp8))
 			} else {
-				Box(
-					Modifier
-						.background(
-							colorScheme.surface,
-							shape = RoundedCornerShape(SeDimen.Dp6)
-						)
-						.clip(RoundedCornerShape(SeDimen.Dp6))
-						.padding(SeDimen.Dp12)
+				ui.icon.toDrawable()?.let {
+					Box(
+						Modifier
+							.background(
+								colorScheme.surface,
+								shape = RoundedCornerShape(SeDimen.Dp6)
+							)
+							.clip(RoundedCornerShape(SeDimen.Dp6))
+							.padding(SeDimen.Dp12)
 
-				) {
-					Image(
-						painterResource(Res.drawable.link_ic),
-						contentDescription = null,
-						modifier = Modifier.size(SeDimen.Dp24)
-					)
+					) {
+						Image(
+							painterResource(it),
+							contentDescription = null,
+							modifier = Modifier.size(SeDimen.Dp28)
+						)
+					}
 				}
 			}
 
@@ -90,8 +100,17 @@ internal fun HistoryItem(
 				modifier = Modifier.padding(SeDimen.Dp12)
 			) {
 				Text(
-					text = history.result,
-					style = typography.bodyLarge
+					text = ui.title,
+					style = typography.bodyLarge,
+					maxLines = Int.ONE,
+					overflow = TextOverflow.Ellipsis
+				)
+
+				Text(
+					text = ui.subtitle,
+					style = typography.bodyMedium,
+					maxLines = Int.ONE,
+					overflow = TextOverflow.Ellipsis
 				)
 
 				Spacer(Modifier.height(SeDimen.Dp8))

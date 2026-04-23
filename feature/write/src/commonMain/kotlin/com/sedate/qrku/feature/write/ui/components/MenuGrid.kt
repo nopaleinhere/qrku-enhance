@@ -49,7 +49,7 @@ fun MenuGrid(
 		items(items) { item ->
 			MenuItem(
 				item = item,
-				icon = viewModel.run { item.iconKey.toDrawable() },
+				icon = item.iconKey.toDrawable(),
 				onClick = {
 					navigator.navigate(WriteRoute.Generate(
 						type = item.support.contentType,

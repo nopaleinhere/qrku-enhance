@@ -3,8 +3,8 @@ package com.sedate.qrku.feature.write.viewmodel
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import com.sedate.qrku.core.common.constants.BarcodeType
+import com.sedate.qrku.core.model.IconKey
 import com.sedate.qrku.feature.write.data.GenerateType
-import com.sedate.qrku.feature.write.data.IconKey
 import com.sedate.qrku.resources.Res
 import com.sedate.qrku.resources.barcode_ic
 import com.sedate.qrku.resources.calendar_ic

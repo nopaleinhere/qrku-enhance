@@ -1,4 +1,4 @@
-package com.sedate.qrku.feature.write.data
+package com.sedate.qrku.core.model
 
 enum class IconKey {
 	NONE,
@@ -12,5 +12,5 @@ enum class IconKey {
 	CALENDAR,
 	VCARD,
 	PLAY_STORE,
-	BARCODE
+	BARCODE;
 }
