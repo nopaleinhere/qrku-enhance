@@ -92,7 +92,7 @@ fun SeBottomDialog(
 						Icon(
 							imageVector = icon,
 							contentDescription = null,
-							tint = MaterialTheme.colorScheme.primary,
+							tint = MaterialTheme.colorScheme.onPrimary,
 							modifier = Modifier.size(SeDimen.Dp22)
 						)
 					}

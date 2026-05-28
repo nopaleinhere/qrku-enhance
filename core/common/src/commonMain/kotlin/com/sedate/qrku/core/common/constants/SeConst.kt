@@ -7,6 +7,7 @@ object SeConst {
 	String Constants
 	================================= */
 	val String.Companion.EMPTY get() = ""
+	val String.Companion.SPACE get() = " "
 	val String.Companion.DOT get() = "."
 	val String.Companion.COMMA get() = ","
 
@@ -17,6 +18,11 @@ object SeConst {
 	val Companion.ONE get() = 1
 	val Companion.TWO get() = 2
 	val Companion.THREE get() = 3
+	val Companion.FOUR get() = 4
+	val Companion.FIVE get() = 5
+	val Companion.SIX get() = 6
+	val Companion.SEVEN get() = 7
+	val Companion.EIGHT get() = 8
 	val Companion.TEN get() = 10
 	val Companion.ELEVEN get() = 11
 	val Companion.TWELVE get() = 12
@@ -39,6 +45,8 @@ object SeConst {
 	Float Constants
 	================================= */
 	val Float.Companion.ZERO get() = 0f
+	val Float.Companion.POINT_ZERO_EIGHT get() = 0.08f
+	val Float.Companion.ZERO_POINT_ONE get() = 0.1f
 	val Float.Companion.ZERO_POINT_TWO get() = 0.2f
 	val Float.Companion.ZERO_POINT_THREE get() = 0.3f
 	val Float.Companion.ZERO_POINT_FOUR get() = 0.4f
@@ -46,10 +54,16 @@ object SeConst {
 	val Float.Companion.ZER0_POINT_SIX get() = 0.6f
 	val Float.Companion.ZERO_POINT_SEVEN get() = 0.7f
 	val Float.Companion.ZERO_POINT_FIFTEN get() = 0.15f
+	val Float.Companion.ZERO_POINT_EIGHTEEN get() = 0.18f
+	val Float.Companion.ZERO_POINT_TWENTY_FOUR get() = 0.24f
 	val Float.Companion.ZERO_POINT_FOURTY_EIGHT get() = 0.48f
 	val Float.Companion.ONE get() = 1f
 	val Float.Companion.TWO get() = 2f
 	val Float.Companion.THREE get() = 3f
+	val Float.Companion.TWENTY_EIGHT get() = 28f
+	val Float.Companion.THIRTY_TWO get() = 32f
+	val Float.Companion.FOURTY_EIGHT get() = 48f
+	val Float.Companion.FIFTY_SIX get() = 56f
 	val Float.Companion.FOUR_HUNDRED get() = 400f
 
 	/* ==============================
@@ -68,6 +82,7 @@ object SeConst {
 	val Long.Companion.ONE_HUNDRED_FIFTY get() = 150L
 	val Long.Companion.TWO_HUNDRED get() = 200L
 	val Long.Companion.THREE_HUNDRED get() = 300L
+	val Long.Companion.FIVE_HUNDRED get() = 500L
 	val Long.Companion.EIGHT_HUNDRED get() = 800L
 	val Long.Companion.FIVE_THOUSAND get() = 5000L
 

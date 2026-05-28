@@ -7,8 +7,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,7 +43,7 @@ fun NavigationBar(
 	) {
 		NavigationBar(
 			modifier = modifier,
-			tonalElevation = SeDimen.Dp0,
+			tonalElevation = SeDimen.Dp4,
 			content = {
 				appState.destination.forEach { destination ->
 					val selected = appState.currentTopLevelDestination == destination
@@ -64,8 +66,8 @@ fun NavigationBar(
 
 private fun getStringRes(destination: SeDestination): StringResource {
 	return when (destination) {
-		SeDestination.WRITE -> Res.string.write
 		SeDestination.SCAN -> Res.string.scan
+		SeDestination.WRITE -> Res.string.write
 		SeDestination.HISTORY -> Res.string.history
 		SeDestination.SETTINGS -> Res.string.settings
 	}

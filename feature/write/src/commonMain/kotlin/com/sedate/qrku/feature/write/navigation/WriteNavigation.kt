@@ -9,24 +9,24 @@ import com.sedate.qrku.core.ui.navigation.Navigator
 import com.sedate.qrku.core.ui.navigation.Routes
 import com.sedate.qrku.core.ui.navigation.WriteRoute
 import com.sedate.qrku.feature.write.ui.view.GenerateView
-import com.sedate.qrku.feature.write.ui.view.LandingView
+import com.sedate.qrku.feature.write.ui.view.WriteView
 
 fun EntryProviderScope<Routes>.writeFlow(
 	navigator: Navigator,
 ) {
-	entry<WriteRoute.Landing>(metadata = NavDisplay.transitionSpec {
+	entry<WriteRoute.Write>(metadata = NavDisplay.transitionSpec {
 		EnterTransition.None togetherWith ExitTransition.None
 	} + NavDisplay.popTransitionSpec {
 		EnterTransition.None togetherWith ExitTransition.None
 	}) {
-		LandingView(navigator)
+		WriteView(navigator)
 	}
 
 	entry<WriteRoute.Generate> {
 		GenerateView(
 			navigator = navigator,
 			type = it.type,
-			subType = it.subType
+			support = it.support
 		)
 	}
 }

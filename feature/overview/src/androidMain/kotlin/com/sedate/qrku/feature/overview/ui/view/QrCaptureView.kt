@@ -15,10 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import com.sedate.qrku.core.common.constants.BarcodeType
-import com.sedate.qrku.core.common.constants.SeConst.EMPTY
 import com.sedate.qrku.core.common.constants.SeConst.FIVE_HUNDRED_TWELVE
 import com.sedate.qrku.core.common.utils.extractDomain
 import com.sedate.qrku.core.common.utils.isValidUrl
@@ -29,11 +27,9 @@ import com.sedate.qrku.core.ui.material.appbar.AppBarType
 import com.sedate.qrku.core.ui.material.appbar.SeAppBar
 import com.sedate.qrku.core.ui.material.dialog.SeBottomDialog
 import com.sedate.qrku.core.ui.navigation.Navigator
-import com.sedate.qrku.core.ui.utils.ParsedContent
 import com.sedate.qrku.core.ui.utils.QrGenerator
 import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.core.ui.utils.typeFormat
-import com.sedate.qrku.feature.overview.ui.components.ActionButton
 import com.sedate.qrku.feature.overview.ui.components.BarcodeDescription
 import com.sedate.qrku.feature.overview.ui.components.ResultDescription
 import com.sedate.qrku.feature.overview.viewmodel.QrCaptureViewModel
@@ -50,13 +46,11 @@ actual fun QrCaptureView(
 	date: Long?
 ) {
 	val viewModel: QrCaptureViewModel = koinViewModel()
-
+	
 	with(viewModel) {
 		val uriHandler = LocalUriHandler.current
-		val contentType = remember { mutableStateOf(String.EMPTY) }
-
 		val qrImage: MutableState<Bitmap?> = remember { mutableStateOf(null) }
-
+		
 		LaunchedEffect(
 			input,
 			format
@@ -65,46 +59,31 @@ actual fun QrCaptureView(
 				text = input,
 				format = format,
 				size = Int.FIVE_HUNDRED_TWELVE,
-				onType = {
-					contentType.value = when (it) {
-						is ParsedContent.Text -> "Text"
-						is ParsedContent.Url -> "Url"
-						is ParsedContent.Product -> "Product"
-						is ParsedContent.Wifi -> "Wifi"
-						is ParsedContent.Contact -> "Contact"
-						is ParsedContent.Email -> "Email"
-						is ParsedContent.Sms -> "Sms"
-						is ParsedContent.Geo -> "Geo"
-						is ParsedContent.VIN -> "VIN"
-						is ParsedContent.ISBN -> "ISBN"
-						is ParsedContent.Calendar -> "Calendar"
-					}
-				},
+				onType = {},
 				onCapture = {
 					qrImage.value = it
-				}
-			)
+				})
 		}
-
-		LaunchedEffect(contentType) {
-			if (contentType.value.isNotEmpty() && actionType != BarcodeType.Action.HISTORY) {
+		
+		LaunchedEffect(type) {
+			if (type.isNotEmpty() && actionType != BarcodeType.Action.HISTORY) {
 				saveResult(
 					actionType = actionType,
 					value = input,
-					contentType = contentType.value,
+					contentType = type,
 					format = typeFormat(format),
 					formatCode = format
 				)
 			}
 		}
-
+		
 		ConfirmUrlDialog(
 			viewModel = viewModel,
 			openLink = {
 				if (input.isValidUrl()) uriHandler.openUri(input)
 			}
 		)
-
+		
 		BaseUi(
 			appBar = {
 				SeAppBar(
@@ -118,28 +97,28 @@ actual fun QrCaptureView(
 					),
 					onBackClick = {
 						navigator.pop()
-					}
-				)
+					})
 			},
 			content = {
 				Column(
-					modifier = Modifier.fillMaxWidth()
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(it)
 						.padding(top = SeDimen.Dp16)
 				) {
-					ResultDescription(
-						input,
-						viewModel
-					)
-
 					BarcodeDescription(
 						qrImage = qrImage.value,
-						contentType = contentType.value,
+						raw = input,
+						contentType = type,
 						type = type,
 						format = format,
 						date = date
 					)
-
-					ActionButton(qrImage.value)
+					
+					ResultDescription(
+						input = input,
+						type = type
+					)
 				}
 			}
 		)
@@ -152,11 +131,11 @@ fun ConfirmUrlDialog(
 	openLink: (String) -> Unit
 ) = with(viewModel) {
 	val confirmUrl by confirmUrl.collectAsState()
-
+	
 	confirmUrl?.let { url ->
 		val normalized = normalizeUrl(url)
 		val domain = extractDomain(normalized)
-
+		
 		SeBottomDialog(
 			icon = Icons.Default.OpenInBrowser,
 			title = "Open link?",
@@ -168,7 +147,6 @@ fun ConfirmUrlDialog(
 			},
 			onDismiss = {
 				dismissDialog()
-			}
-		)
+			})
 	}
 }

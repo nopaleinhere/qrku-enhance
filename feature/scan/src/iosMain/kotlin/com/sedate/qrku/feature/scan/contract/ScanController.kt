@@ -16,4 +16,10 @@ actual class ScanController {
 		onResult: (ScanResult) -> Unit
 	) {
 	}
+
+	actual fun getZoomRange(onResult: (Float, Float) -> Unit) {
+	}
+
+	actual fun setZoomRatio(ratio: Float) {
+	}
 }

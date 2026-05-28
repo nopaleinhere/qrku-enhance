@@ -52,7 +52,7 @@ internal fun SelectionTopBar(
 	} else {
 		SeAppBar(
 			AppBarState(
-				"History",
+				"History QRKU",
 				AppBarType.TOP_LEVEL
 			)
 		)

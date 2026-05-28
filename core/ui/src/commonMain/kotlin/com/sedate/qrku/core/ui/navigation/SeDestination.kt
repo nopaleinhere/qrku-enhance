@@ -11,19 +11,18 @@ enum class SeDestination(
 	val icon: ImageVector,
 	val route: Routes,
 ) {
-	WRITE(
-		icon = Icons.Filled.Edit,
-		route = WriteRoute.Landing
-	),
 	SCAN(
 		icon = Icons.Filled.QrCodeScanner,
 		route = ScanRoute.Scan
+	),
+	WRITE(
+		icon = Icons.Filled.Edit,
+		route = WriteRoute.Write
 	),
 	HISTORY(
 		icon = Icons.Filled.History,
 		route = HistoryRoute.History
 	),
-
 	SETTINGS(
 		icon = Icons.Filled.Settings,
 		route = SettingsRoute.Settings

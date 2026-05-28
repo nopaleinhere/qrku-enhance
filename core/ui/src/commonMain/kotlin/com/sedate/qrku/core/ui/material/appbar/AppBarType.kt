@@ -16,10 +16,10 @@ enum class AppBarType(
 	),
 	TOP_LEVEL(
 		Int.ONE,
-		SeTextStyle.H3
+		SeTextStyle.H4
 	),
 	SUB_LEVEL(
 		Int.TWO,
-		SeTextStyle.H4
+		SeTextStyle.H5
 	)
 }

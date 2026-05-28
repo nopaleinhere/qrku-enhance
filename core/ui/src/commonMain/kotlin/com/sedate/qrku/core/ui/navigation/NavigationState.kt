@@ -7,7 +7,7 @@ class NavigationState : Navigator {
 	private val tabBackStacks =
 		mutableMapOf<SeDestination, SnapshotStateList<Routes>>()
 
-	private var _currentTab: SeDestination = SeDestination.WRITE
+	private var _currentTab: SeDestination = SeDestination.SCAN
 	val currentTab: SeDestination
 		get() = _currentTab
 

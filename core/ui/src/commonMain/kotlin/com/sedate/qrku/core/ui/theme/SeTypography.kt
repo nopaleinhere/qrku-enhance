@@ -10,7 +10,6 @@ object SeTextStyle {
 	/* ============================================================
 	 * HEADINGS
 	 * ============================================================ */
-
 	val H1 = TextStyle(
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.Bold,
@@ -56,7 +55,6 @@ object SeTextStyle {
 	/* ============================================================
 	 * BODY
 	 * ============================================================ */
-
 	val BodyLarge = TextStyle(
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.Normal,
@@ -75,13 +73,12 @@ object SeTextStyle {
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.Normal,
 		fontSize = 12.sp,
-		lineHeight = 18.sp
+		lineHeight = 15.sp
 	)
 
 	/* ============================================================
 	 * LABEL / CAPTION
 	 * ============================================================ */
-
 	val LabelLarge = TextStyle(
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.Medium,
@@ -106,7 +103,6 @@ object SeTextStyle {
 	/* ============================================================
 	 * BUTTON / ACTION
 	 * ============================================================ */
-
 	val ButtonLarge = TextStyle(
 		fontFamily = SeFontFamily,
 		fontWeight = FontWeight.SemiBold,
@@ -131,7 +127,6 @@ object SeTextStyle {
 	/* ============================================================
 	 * HELPER
 	 * ============================================================ */
-
 	fun disabled(style: TextStyle): TextStyle =
 		style.copy(
 			color = style.color.copy(alpha = 0.4f)

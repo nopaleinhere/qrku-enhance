@@ -9,21 +9,21 @@ import kotlin.uuid.Uuid
 sealed interface Routes
 
 @Serializable
+data object ScanRoute : Routes {
+	@Serializable
+	data object Scan : Routes
+}
+
+@Serializable
 data object WriteRoute : Routes {
 	@Serializable
-	data object Landing : Routes
+	data object Write : Routes
 
 	@Serializable
 	data class Generate(
 		val type: String,
-		val subType: BarcodeType.Support,
+		val support: BarcodeType.Support,
 	) : Routes
-}
-
-@Serializable
-data object ScanRoute : Routes {
-	@Serializable
-	data object Scan : Routes
 }
 
 @Serializable

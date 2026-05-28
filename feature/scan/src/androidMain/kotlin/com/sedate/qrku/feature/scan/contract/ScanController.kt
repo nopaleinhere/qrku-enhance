@@ -18,6 +18,7 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.ZoomState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Stable
@@ -28,9 +29,13 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.sedate.qrku.core.common.constants.SeConst.FIVE_HUNDRED
+import com.sedate.qrku.core.common.constants.SeConst.FIVE_THOUSAND
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED
 import com.sedate.qrku.core.common.constants.SeConst.ONE_HUNDRED_FIFTY
 import com.sedate.qrku.core.model.ScanResult
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Stable
 actual class ScanController(
@@ -41,6 +46,9 @@ actual class ScanController(
 	private var lifecycleOwner: LifecycleOwner? = null
 	private var camera: Camera? = null
 	private var pendingFlash: Boolean = false
+
+	private val _zoomState = MutableStateFlow<ZoomState?>(null)
+	val zoomState: StateFlow<ZoomState?> = _zoomState
 
 	fun attachPreview(
 		previewView: PreviewView,
@@ -74,6 +82,12 @@ actual class ScanController(
 						preview,
 						analysis
 					)
+
+					camera?.cameraInfo?.zoomState?.observe(owner) { zoomState ->
+						_zoomState.value = zoomState
+						Log.d("ZOOM", "min=${zoomState.minZoomRatio}, max=${zoomState.maxZoomRatio}")
+					}
+
 					if (camera?.cameraInfo?.hasFlashUnit() == true) {
 						camera?.cameraControl?.enableTorch(pendingFlash)
 					}
@@ -110,15 +124,38 @@ actual class ScanController(
 				val barcode = barcodes.firstOrNull()
 				val value = barcode?.rawValue ?: return@addOnSuccessListener
 				val format = barcode.format
+				val type = barcode.valueType
 
 				onResult(
 					ScanResult(
 						value = value,
-						format = format
+						format = format,
+						type = type
 					)
 				)
 			}
 			.addOnFailureListener { }
+	}
+
+	actual fun getZoomRange(onResult: (Float, Float) -> Unit) {
+		val zoomState = camera?.cameraInfo?.zoomState?.value
+		if (zoomState != null) {
+			onResult(zoomState.minZoomRatio, zoomState.maxZoomRatio)
+		}
+	}
+
+	actual fun setZoomRatio(ratio: Float) {
+		camera?.let { cam ->
+			val zoomState = cam.cameraInfo.zoomState.value ?: return
+
+			val safeRatio = ratio.coerceIn(
+				zoomState.minZoomRatio,
+				zoomState.maxZoomRatio
+			)
+
+			Log.d("ZOOM", "setZoomRatio: $safeRatio")
+			cam.cameraControl.setZoomRatio(safeRatio)
+		}
 	}
 
 	private fun buildPreview(pv: PreviewView): Preview =
@@ -165,11 +202,13 @@ actual class ScanController(
 				val barcode = barcodes.firstOrNull()
 				val value = barcode?.rawValue ?: return@addOnSuccessListener
 				val format = barcode.format
+				val type = barcode.valueType
 
 				onResult(
 					ScanResult(
 						value = value,
-						format = format
+						format = format,
+						type = type
 					)
 				)
 			}
@@ -215,7 +254,7 @@ actual class ScanController(
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			vibrator.vibrate(
 				VibrationEffect.createOneShot(
-					500,
+					Long.FIVE_HUNDRED,
 					VibrationEffect.DEFAULT_AMPLITUDE
 				)
 			)
