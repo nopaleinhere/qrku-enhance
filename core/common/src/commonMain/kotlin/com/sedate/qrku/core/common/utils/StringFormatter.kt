@@ -15,6 +15,16 @@ fun encodeUrl(value: String): String {
     )
 }
 
+fun joinOrFallback(
+    vararg values: String?,
+    fallback: String
+): String {
+    return values
+        .filterNot { it.isNullOrBlank() }
+        .joinToString("\n")
+        .ifEmpty { fallback }
+}
+
 fun normalizeUrl(url: String): String {
     return if (url.startsWith("http://")
             .not() && url.startsWith("https://")
@@ -29,7 +39,46 @@ fun formatBarcode(code: String): String {
 }
 
 fun extract(raw: String, key: String): String? {
-    return Regex("$key:(.*?);").find(raw)?.groupValues?.get(1)
+    val pattern = when {
+        raw.startsWith("MECARD:", ignoreCase = true) -> {
+            Regex("""$key:([^;]*)""")
+        }
+
+        raw.contains("BEGIN:VCARD", ignoreCase = true) -> {
+            Regex("""$key(?:;[^:]+)?:([^\n\r]*)""")
+        }
+
+        raw.startsWith("SMSTO:", ignoreCase = true) -> {
+            when (key) {
+                "TEL" -> Regex("""SMSTO:([^:]+)""")
+                "BODY" -> Regex("""SMSTO:[^:]+:(.*)""")
+                else -> Regex("""$key:([^;\n\r]*)""")
+            }
+        }
+
+        raw.startsWith("MATMSG:", ignoreCase = true) -> {
+            Regex("""$key:([^;]*)""")
+        }
+
+        raw.startsWith("WIFI:", ignoreCase = true) -> {
+            Regex("""$key:([^;]*)""")
+        }
+
+        else -> {
+            Regex("""$key:([^;\n\r]*)""")
+        }
+    }
+
+    return pattern
+        .find(raw)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.trim()
+        ?.replace("\\,", ",")
+        ?.replace("\\n", "\n")
+        ?.replace("\\;", ";")
+        ?.replace("\\", "")
+        ?.takeIf(String::isNotBlank)
 }
 
 fun escape(value: String): String {

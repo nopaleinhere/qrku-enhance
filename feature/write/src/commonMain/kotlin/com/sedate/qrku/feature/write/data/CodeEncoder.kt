@@ -92,6 +92,7 @@ object CodeEncoder {
             appendLine("TEL:${escape(content.phone)}")
             appendLine("EMAIL:${escape(content.email)}")
             appendLine("ORG:${escape(content.company)}")
+            appendLine("TITLE:${escape(content.title)}")
             appendLine("ADR:${escape(content.address)}")
             appendLine("END:VCARD")
         }

@@ -20,8 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -37,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.sedate.qrku.core.common.constants.SeConst.EMPTY
+import com.sedate.qrku.core.ui.material.dropdown.SeDropdown
 import com.sedate.qrku.core.ui.utils.SeDimen
 import com.sedate.qrku.feature.write.data.FormPart
 import com.sedate.qrku.feature.write.viewmodel.FormState
@@ -163,7 +162,6 @@ private fun InputDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Column {
-
         Text(
             text = field.label,
             style = typography.bodyMedium
@@ -172,7 +170,6 @@ private fun InputDropdown(
         Spacer(modifier = Modifier.height(SeDimen.Dp4))
 
         Box {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -186,7 +183,6 @@ private fun InputDropdown(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 Text(
                     text = value.ifEmpty { "Select ${field.label}" },
                     color = if (value.isEmpty())
@@ -201,20 +197,15 @@ private fun InputDropdown(
                 )
             }
 
-            DropdownMenu(
+            SeDropdown(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                field.options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            state.values[field.key] = option
-                            expanded = false
-                        }
-                    )
+                onDismiss = { expanded = false },
+                options = field.options,
+                selected = state.values[field.key] as? String,
+                onSelect = {
+                    state.values[field.key] = it
                 }
-            }
+            )
         }
     }
 }

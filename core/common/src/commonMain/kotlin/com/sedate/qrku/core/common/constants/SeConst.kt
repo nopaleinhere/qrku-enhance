@@ -45,6 +45,7 @@ object SeConst {
 	Float Constants
 	================================= */
 	val Float.Companion.ZERO get() = 0f
+	val Float.Companion.POINT_ZERO_EIGHT get() = 0.08f
 	val Float.Companion.ZERO_POINT_ONE get() = 0.1f
 	val Float.Companion.ZERO_POINT_TWO get() = 0.2f
 	val Float.Companion.ZERO_POINT_THREE get() = 0.3f
@@ -53,10 +54,16 @@ object SeConst {
 	val Float.Companion.ZER0_POINT_SIX get() = 0.6f
 	val Float.Companion.ZERO_POINT_SEVEN get() = 0.7f
 	val Float.Companion.ZERO_POINT_FIFTEN get() = 0.15f
+	val Float.Companion.ZERO_POINT_EIGHTEEN get() = 0.18f
+	val Float.Companion.ZERO_POINT_TWENTY_FOUR get() = 0.24f
 	val Float.Companion.ZERO_POINT_FOURTY_EIGHT get() = 0.48f
 	val Float.Companion.ONE get() = 1f
 	val Float.Companion.TWO get() = 2f
 	val Float.Companion.THREE get() = 3f
+	val Float.Companion.TWENTY_EIGHT get() = 28f
+	val Float.Companion.THIRTY_TWO get() = 32f
+	val Float.Companion.FOURTY_EIGHT get() = 48f
+	val Float.Companion.FIFTY_SIX get() = 56f
 	val Float.Companion.FOUR_HUNDRED get() = 400f
 
 	/* ==============================

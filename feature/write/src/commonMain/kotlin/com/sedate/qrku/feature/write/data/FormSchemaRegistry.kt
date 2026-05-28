@@ -233,6 +233,11 @@ private val vcardSchema = listOf(
         required = false
     ),
     FormPart.TextField(
+        key = "title",
+        label = "Position",
+        required = false
+    ),
+    FormPart.TextField(
         key = "address",
         label = "Address",
         required = false

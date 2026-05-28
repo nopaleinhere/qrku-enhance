@@ -54,7 +54,7 @@ fun SeToggle(
 	val trackColor by transition.animateColor(
 		label = "track_color",
 		transitionSpec = { tween(Int.TWO_HUNDRED_FIFTY) }
-	) { if (it) colorScheme.secondary else colorScheme.surfaceVariant }
+	) { if (it) colorScheme.primaryContainer else colorScheme.surfaceVariant }
 
 	val thumbColor by transition.animateColor(
 		label = "thumb_color",

@@ -21,6 +21,7 @@ fun mapToContent(
             GenerateContent.Contact(
                 name = values.string("name"),
                 phone = values.string("phone"),
+                email = values.string("email"),
                 organization = values.string("organization"),
                 address = values.string("address"),
                 notes = values.string("notes")
@@ -76,6 +77,7 @@ fun mapToContent(
                 phone = values.string("phone"),
                 email = values.string("email"),
                 company = values.string("company"),
+                title = values.string("title"),
                 address = values.string("address")
             )
 

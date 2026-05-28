@@ -1,6 +1,7 @@
 package com.sedate.qrku.feature.scan.ui.view
 
 import android.Manifest
+import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
@@ -23,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.sedate.qrku.core.common.constants.BarcodeType
-import com.sedate.qrku.core.common.constants.SeConst.EMPTY
 import com.sedate.qrku.core.common.constants.SeConst.THREE_HUNDRED
 import com.sedate.qrku.core.common.utils.extractDomain
 import com.sedate.qrku.core.common.utils.isUrl
@@ -56,9 +57,7 @@ import org.koin.compose.koinInject
 @Composable
 @RequiresPermission(Manifest.permission.VIBRATE)
 actual fun ScanView(
-    navigator: Navigator,
-    innerPadding: PaddingValues,
-    viewModel: ScanViewModel
+    navigator: Navigator, innerPadding: PaddingValues, viewModel: ScanViewModel
 ) = with(viewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val view = LocalView.current
@@ -75,31 +74,26 @@ actual fun ScanView(
     val isBrowserOpen by isBrowserOpen.collectAsState()
     val isFlash by isFlash.collectAsState()
 
-    val openGallery = rememberGalleryPicker(
-        onImagePicked = { uri ->
-            isGalleryOpen = false
+    val openGallery = rememberGalleryPicker(onImagePicked = { uri ->
+        isGalleryOpen = false
 
-            controller.scanFromImage(uri) { result ->
-                emitScan(
-                    ScanResult(
-                        result.value,
-                        result.format
-                    )
+        controller.scanFromImage(uri) { result ->
+            emitScan(
+                ScanResult(
+                    result.value, result.format, result.type
                 )
-            }
-        },
-        onCancel = {
-            isGalleryOpen = false
-            controller.startScan { result ->
-                emitScan(
-                    ScanResult(
-                        result.value,
-                        result.format
-                    )
-                )
-            }
+            )
         }
-    )
+    }, onCancel = {
+        isGalleryOpen = false
+        controller.startScan { result ->
+            emitScan(
+                ScanResult(
+                    result.value, result.format, result.type
+                )
+            )
+        }
+    })
 
     when {
         permission.isGranted() -> {
@@ -109,8 +103,7 @@ actual fun ScanView(
                 controller.startScan { result ->
                     emitScan(
                         ScanResult(
-                            result.value,
-                            result.format
+                            result.value, result.format, result.type
                         )
                     )
                 }
@@ -127,17 +120,14 @@ actual fun ScanView(
                             controller.stopScan()
 
                             uriHandler.openUri(url)
-                        }
-                    )
+                        })
                 }
             }
 
             LaunchedEffect(zoomState) {
                 zoomState?.let {
                     setZoomRatio(
-                        it.zoomRatio,
-                        it.minZoomRatio,
-                        it.maxZoomRatio
+                        it.zoomRatio, it.minZoomRatio, it.maxZoomRatio
                     )
                 }
             }
@@ -153,8 +143,7 @@ actual fun ScanView(
                         isBrowserOpen = isBrowserOpen,
                         controller = controller,
                         viewModel = viewModel,
-                        emitScan =
-                            ::emitScan
+                        emitScan = ::emitScan
                     )
                 }
                 view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
@@ -162,51 +151,40 @@ actual fun ScanView(
             }
 
             ConfirmUrlDialog(
-                viewModel = viewModel,
-                openLink = { url ->
+                viewModel = viewModel, openLink = { url ->
                     controller.stopScan()
                     uriHandler.openUri(url)
                     scope.launch {
                         delay(Long.THREE_HUNDRED)
                         setBrowserOpen(true)
                     }
-                }
-            )
+                })
 
             Box(Modifier.fillMaxSize()) {
                 CameraPreview(
-                    Modifier.fillMaxSize(),
-                    onPreviewReady = { previewView ->
+                    Modifier.fillMaxSize(), onPreviewReady = { previewView ->
                         controller.attachPreview(
-                            previewView = previewView,
-                            lifecycleOwner = lifecycleOwner
+                            previewView = previewView, lifecycleOwner = lifecycleOwner
                         )
 
                         controller.getZoomRange { min, max ->
                             setZoomRatio(
-                                min,
-                                min,
-                                max
+                                min, min, max
                             )
                         }
-                    }
-                )
+                    })
 
                 ScannerDarkOverlay()
                 ScannerCornerOverlay(this)
 
-                ScannerTopBar(
-                    isFlash = isFlash,
-                    onFlashClick = {
-                        val isFlash = setFlash(isFlash.not())
-                        controller.toggleFlash(isFlash)
-                    },
-                    onGalleryClick = {
-                        isGalleryOpen = true
-                        controller.stopScan()
-                        openGallery()
-                    }
-                )
+                ScannerTopBar(isFlash = isFlash, onFlashClick = {
+                    val isFlash = setFlash(isFlash.not())
+                    controller.toggleFlash(isFlash)
+                }, onGalleryClick = {
+                    isGalleryOpen = true
+                    controller.stopScan()
+                    openGallery()
+                })
 
                 ZoomSlider(
                     value = zoomRatio,
@@ -215,40 +193,34 @@ actual fun ScanView(
                         controller.setZoomRatio(value)
                     },
                     valueRange = minZoom..maxZoom,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
+                    modifier = Modifier.align(Alignment.BottomCenter)
                         .padding(bottom = innerPadding.calculateBottomPadding() + SeDimen.Dp40)
                 )
             }
         }
 
         else -> {
-            BaseUi(
-                appBar = {
-                    SeAppBar(
-                        state = AppBarState(
-                            title = "Scan QRKU",
-                            type = AppBarType.TOP_LEVEL
-                        )
+            BaseUi(appBar = {
+                SeAppBar(
+                    state = AppBarState(
+                        title = "Scan QRKU", type = AppBarType.TOP_LEVEL
                     )
-                },
-                content = {
-                    CameraPermissionContent(
-                        permanentlyDenied = permission.isPermanentlyDenied(),
-                        onRequest = permission.request,
-                        onOpenSettings = permission.openSettings,
-                        modifier = Modifier.padding(it)
-                    )
-                }
-            )
+                )
+            }, content = {
+                CameraPermissionContent(
+                    permanentlyDenied = permission.isPermanentlyDenied(),
+                    onRequest = permission.request,
+                    onOpenSettings = permission.openSettings,
+                    modifier = Modifier.padding(it)
+                )
+            })
         }
     }
 }
 
 @Composable
 fun ConfirmUrlDialog(
-    viewModel: ScanViewModel,
-    openLink: (String) -> Unit
+    viewModel: ScanViewModel, openLink: (String) -> Unit
 ) = with(viewModel) {
     val confirmUrl by confirmUrl.collectAsState()
 
@@ -269,8 +241,7 @@ fun ConfirmUrlDialog(
             onDismiss = {
                 dismissDialog()
                 resetScan()
-            }
-        )
+            })
     }
 }
 
@@ -296,14 +267,31 @@ fun handleScanResult(
             viewModel.showConfirmDialog(value)
         }
     } else {
+        Log.d("handleScanResult", "Scan format: ${result.format}")
+
         navigator.navigate(
             OverviewRoute.QrCapture(
                 actionType = BarcodeType.Action.SCAN,
-                type = String.EMPTY,
+                type = mapTypeScan(result.type),
                 input = value,
                 format = result.format
             )
         )
+    }
+}
+
+fun mapTypeScan(type: Int?): String {
+    return when (type) {
+        Barcode.TYPE_URL -> "Url"
+        Barcode.TYPE_CONTACT_INFO -> "Contact"
+        Barcode.TYPE_WIFI -> "Wifi"
+        Barcode.TYPE_EMAIL -> "Email"
+        Barcode.TYPE_PHONE -> "Phone"
+        Barcode.TYPE_SMS -> "Sms"
+        Barcode.TYPE_CALENDAR_EVENT -> "Calendar"
+        Barcode.TYPE_PRODUCT -> "Product"
+        Barcode.TYPE_TEXT -> "Text"
+        else -> "Unknown"
     }
 }
 
@@ -316,10 +304,7 @@ fun handleWindowFocus(
 ) {
     if (hasFocus) {
         onReturnFromBrowser(
-            isBrowserOpen,
-            controller,
-            viewModel,
-            emitScan
+            isBrowserOpen, controller, viewModel, emitScan
         )
     }
 }
@@ -336,8 +321,7 @@ fun onReturnFromBrowser(
         controller.startScan { result ->
             emitScan(
                 ScanResult(
-                    result.value,
-                    result.format
+                    result.value, result.format, result.type
                 )
             )
         }

@@ -1,74 +1,101 @@
 package com.sedate.qrku.core.common.utils
 
 fun formatContact(raw: String): String {
-    val name = extract(raw, "N")
-    val phone = extract(raw, "TEL")
-    val email = extract(raw, "EMAIL")
+    val name = extract(raw, "FN")
+        ?: extract(raw, "N")
 
-    return listOfNotNull(name, phone, email)
-        .joinToString(" • ")
-        .ifEmpty { "Contact" }
+    val note = extract(raw, "NOTE")
+        ?.let { "\nNote: $it" }
+
+    return joinOrFallback(
+        name,
+        extract(raw, "TEL"),
+        extract(raw, "EMAIL"),
+        extract(raw, "ORG"),
+        extract(raw, "ADR"),
+        note,
+        fallback = "Contact"
+    )
+}
+
+fun formatWifi(raw: String): String {
+    val ssid = extract(raw, "S") ?: "WiFi"
+    val security = extract(raw, "T")
+
+    return buildString {
+        append(ssid)
+        security?.takeIf { it.isNotEmpty() }?.let {
+            append(" ($it)")
+        }
+    }
+}
+
+fun formatCalendar(raw: String): String {
+    val title = extract(raw, "SUMMARY")
+    val location = extract(raw, "LOCATION")
+    val start = extract(raw, "DTSTART")
+
+    val date = start?.let(::formatDate)
+
+    return joinOrFallback(
+        title,
+        location,
+        date,
+        fallback = "Event"
+    )
 }
 
 fun formatPhone(raw: String): String {
     return raw.removePrefix("tel:")
+        .ifBlank { "Phone" }
 }
 
 fun formatEmail(raw: String): String {
-    val email = raw.substringAfter("mailto:").substringBefore("?")
-    val subject = raw.substringAfter("subject=", "").substringBefore("&")
+    val email = raw.substringAfter("mailto:", "")
+        .substringBefore("?")
 
-    return if (subject.isNotEmpty())
-        "$email • $subject"
-    else email
+    val subject = raw.substringAfter("subject=", "")
+        .substringBefore("&")
+
+    return joinOrFallback(
+        email,
+        subject.takeIf { it.isNotEmpty() },
+        fallback = "Email"
+    )
 }
 
 fun formatSms(raw: String): String {
-    val parts = raw.removePrefix("SMSTO:").split(":")
+    val parts = raw.removePrefix("SMSTO:")
+        .split(":")
 
     val number = parts.getOrNull(0)
     val message = parts.getOrNull(1)
 
-    return listOfNotNull(number, message)
-        .joinToString(" • ")
-}
-
-fun formatWifi(raw: String): String {
-    val ssid = extract(raw, "S")
-    val type = extract(raw, "T")
-
-    return listOfNotNull(ssid, type)
-        .joinToString(" • ")
-        .ifEmpty { "WiFi Network" }
-}
-
-fun formatCalendar(raw: String): String {
-    val title = Regex("SUMMARY:(.*)").find(raw)?.groupValues?.get(1)
-    val start = Regex("DTSTART:(.*)").find(raw)?.groupValues?.get(1)
-
-    val formattedDate = start?.let { formatDate(it) }
-
-    return listOfNotNull(title, formattedDate)
-        .joinToString(" • ")
-        .ifEmpty { "Event" }
-}
-
-fun formatVCard(raw: String): String {
-    val name = extract(raw, "N")
-    val phone = extract(raw, "TEL")
-    val email = extract(raw, "EMAIL")
-
-    return listOfNotNull(name, phone, email)
-        .joinToString(" • ")
-        .ifEmpty { "Contact" }
+    return joinOrFallback(
+        number,
+        message,
+        fallback = "SMS"
+    )
 }
 
 fun formatPlayStore(raw: String): String {
     val packageName = raw.substringAfter("id=", "")
 
-    return if (packageName.isNotEmpty())
-        "App • $packageName"
-    else raw
+    return packageName
+        .takeIf { it.isNotEmpty() }
+        ?.let { "App • $it" }
+        ?: "Play Store"
+}
+
+fun formatVCard(raw: String): String {
+    return joinOrFallback(
+        extract(raw, "FN"),
+        extract(raw, "TEL"),
+        extract(raw, "EMAIL"),
+        extract(raw, "ORG"),
+        extract(raw, "ADR"),
+        fallback = "Contact"
+    )
 }
 
 fun formatDate(raw: String): String {

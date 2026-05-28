@@ -58,6 +58,7 @@ timber = "5.0.1"
 threetenabp = "1.4.9"
 materialVersion = "1.13.0"
 googleMaterial = "1.13.0"
+ui = "1.11.1"
 
 [libraries]
 # ===== Kotlin Test =====
@@ -124,6 +125,7 @@ threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref 
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 # ===== Android =====

@@ -124,11 +124,13 @@ actual class ScanController(
 				val barcode = barcodes.firstOrNull()
 				val value = barcode?.rawValue ?: return@addOnSuccessListener
 				val format = barcode.format
+				val type = barcode.valueType
 
 				onResult(
 					ScanResult(
 						value = value,
-						format = format
+						format = format,
+						type = type
 					)
 				)
 			}
@@ -200,11 +202,13 @@ actual class ScanController(
 				val barcode = barcodes.firstOrNull()
 				val value = barcode?.rawValue ?: return@addOnSuccessListener
 				val format = barcode.format
+				val type = barcode.valueType
 
 				onResult(
 					ScanResult(
 						value = value,
-						format = format
+						format = format,
+						type = type
 					)
 				)
 			}
