@@ -100,7 +100,6 @@ internal fun BarcodeDescription(
 	val selected = remember { mutableStateOf(false) }
 	val currentDate = getCurrentDateTimeFormatted(date)
 	val typeFormat = typeFormat(format)
-
 	
 	Box(
 		modifier = Modifier.fillMaxWidth(),

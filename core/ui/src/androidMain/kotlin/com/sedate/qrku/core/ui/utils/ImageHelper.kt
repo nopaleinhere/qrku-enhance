@@ -4,6 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -14,6 +18,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
 
 fun saveBitmapToGallery(
 	context: Context,
@@ -75,44 +81,111 @@ fun shareBitmap(
 	context: Context,
 	bitmap: Bitmap
 ) {
+	val watermarkedBitmap = bitmap.withQrkuWatermark()
+	
 	val cachePath = File(
 		context.cacheDir,
 		"images"
 	)
 	cachePath.mkdirs()
-
+	
 	val file = File(
 		cachePath,
-		"qr.png"
+		"qrku.png"
 	)
-
+	
 	FileOutputStream(file).use {
-		bitmap.compress(
+		watermarkedBitmap.compress(
 			Bitmap.CompressFormat.PNG,
 			Int.ONE_HUNDRED,
 			it
 		)
 	}
-
+	
 	val uri: Uri = FileProvider.getUriForFile(
 		context,
 		"${context.packageName}.provider",
 		file
 	)
-
+	
 	val intent = Intent(Intent.ACTION_SEND).apply {
 		type = "image/png"
-		putExtra(
-			Intent.EXTRA_STREAM,
-			uri
-		)
+		putExtra(Intent.EXTRA_STREAM, uri)
 		addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 	}
-
+	
 	context.startActivity(
 		Intent.createChooser(
 			intent,
-			"Share QR"
+			"Share QRKU"
 		)
 	)
+}
+
+fun Bitmap.withQrkuWatermark(): Bitmap {
+	val extraBottomSpace = 76
+	
+	val result = createBitmap(width, height + extraBottomSpace)
+	
+	val canvas = Canvas(result)
+	
+	canvas.drawColor(Color.WHITE)
+	
+	canvas.drawBitmap(
+		this,
+		0f,
+		0f,
+		null
+	)
+	
+	val qrkuPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+		color = "#6EC1FF".toColorInt()
+		textSize = 52f
+		typeface = Typeface.create(
+			Typeface.DEFAULT,
+			Typeface.BOLD
+		)
+	}
+	
+	val sedatePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+		color = Color.BLACK
+		textSize = 18f
+		typeface = Typeface.create(
+			Typeface.DEFAULT,
+			Typeface.NORMAL
+		)
+	}
+	
+	val qrkuText = "QRKU"
+	val sedateText = "with Sedate"
+	
+	val qrkuWidth = qrkuPaint.measureText(qrkuText)
+	val sedateWidth = sedatePaint.measureText(sedateText)
+	
+	val totalWidth = maxOf(
+		qrkuWidth,
+		sedateWidth
+	)
+	
+	val qrkuX = width - totalWidth - 32f
+	val sedateX = width - totalWidth - 16f
+	
+	val qrkuY = height + 34f
+	val sedateY = qrkuY + 12f
+	
+	canvas.drawText(
+		qrkuText,
+		qrkuX,
+		qrkuY,
+		qrkuPaint
+	)
+	
+	canvas.drawText(
+		sedateText,
+		sedateX,
+		sedateY,
+		sedatePaint
+	)
+	
+	return result
 }
