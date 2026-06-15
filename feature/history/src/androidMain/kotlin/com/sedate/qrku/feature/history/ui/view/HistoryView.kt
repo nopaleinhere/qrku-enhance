@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
 import com.sedate.qrku.core.common.constants.BarcodeType
 import com.sedate.qrku.core.ui.base.BaseUi
 import com.sedate.qrku.core.ui.navigation.Navigator

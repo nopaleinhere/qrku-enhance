@@ -21,3 +21,4 @@ node_modules/
 /androidApp/release/**
 qrku-release
 qrku-release.*
+.hotswan/

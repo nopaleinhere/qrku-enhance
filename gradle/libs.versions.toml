@@ -60,6 +60,8 @@ materialVersion = "1.13.0"
 googleMaterial = "1.13.0"
 ui = "1.11.1"
 
+# ===== Other =====
+
 [libraries]
 # ===== Kotlin Test =====
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -74,9 +76,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-navigation-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "androidx-navigation" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-navigation-lifecycle" }
-
-androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
-androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
 # ===== Compose =====
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
@@ -124,8 +125,8 @@ threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref 
 # ===== Build Logic Dependencies =====
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+
+# ===== Other =====
 
 [plugins]
 # ===== Android =====
@@ -149,3 +150,5 @@ kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 composeMultiplatformPlugin = { id = "com.sedate.composeMultiplatformPlugin" }
 kotlinMultiplatformPlugin = { id = "com.sedate.kotlinMultiplatformPlugin" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
+
+# ===== Other =====
